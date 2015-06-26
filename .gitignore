@@ -26,3 +26,13 @@
 *.exe
 *.out
 *.app
+
+
+/tags
+.DS_Store
+
+.svn
+./**/.svn
+
+asio_kcp_client/asio_kcp_client
+asio_kcp_server/asio_kcp_server
