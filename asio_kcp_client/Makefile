@@ -64,7 +64,7 @@ LC_OS_NAME = $(shell echo $(OS_NAME) | tr '[A-Z]' '[a-z]')
 MY_CFLAGS =
 
 # The linker options.
-MY_LIBS   = $(BOOST_LIB_PATH)/libboost_system-mt.a $(BOOST_LIB_PATH)/libboost_filesystem-mt.a $(BOOST_LIB_PATH)/libboost_thread-mt.a $(BOOST_LIB_PATH)/libboost_date_time-mt.a $(PB_LIB_PATH)/libprotobuf.a ../essential/essential.a
+MY_LIBS   = $(BOOST_LIB_PATH)/libboost_system-mt.a $(BOOST_LIB_PATH)/libboost_filesystem-mt.a $(BOOST_LIB_PATH)/libboost_thread-mt.a $(BOOST_LIB_PATH)/libboost_date_time-mt.a ../essential/essential.a
 
 
 # The pre-processor options used by the cpp (man cpp for more).
