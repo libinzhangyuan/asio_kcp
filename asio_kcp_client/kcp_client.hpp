@@ -31,7 +31,7 @@ class kcp_client
   : private boost::noncopyable
 {
 public:
-    kcp_client(boost::asio::io_service& io_service, int udp_port_bind, const std::string& server_ip, const int server_port);
+    kcp_client(boost::asio::io_service& io_service, int udp_port_bind, const std::string& server_ip, const int server_port, size_t test_str_size);
 
     // user level send msg.
     void send_msg(const std::string& msg);
@@ -41,7 +41,6 @@ public:
 
 private:
     void init_kcp(void);
-    void init_input(void);
 
 private:
     bool stopped_;
@@ -54,12 +53,9 @@ private:
     void check_udp_package(size_t bytes_recvd);
     static int udp_output(const char *buf, int len, ikcpcb *kcp, void *user);
     static uint64_t endpoint_to_i(const boost::asio::ip::udp::endpoint& ep);
-    void recv_udp_package_from_kcp(size_t bytes_recvd);
+    std::string recv_udp_package_from_kcp(size_t bytes_recvd);
     void handle_kcp_time(void);
     void hook_kcp_timer(void);
-
-    void hook_input_handle(void);
-    void input_handler(const boost::system::error_code& error, const size_t bytes_transferred);
 
     /// The UDP
     boost::asio::ip::udp::socket udp_socket_;
@@ -73,6 +69,10 @@ private:
 
     boost::asio::posix::stream_descriptor input_;
     boost::asio::streambuf input_buf_;
+
+    std::string test_str_;
+    std::vector<uint64_t> recv_package_times_; // record the time of recving package for ttl testing.
+    std::vector<uint64_t> recv_package_interval_;
 };
 
 } // namespace server
