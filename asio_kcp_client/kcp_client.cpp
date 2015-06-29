@@ -23,7 +23,7 @@
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-#define PACKAGE_LOSE_RATIO 66
+#define PACKAGE_LOSE_RATIO 0
 #define PACKAGE_CONTENT_DAMAGE_RATIO 0
 
 /* get system time */
