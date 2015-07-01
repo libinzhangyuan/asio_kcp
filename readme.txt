@@ -1,3 +1,7 @@
+kcp is a A Fast and Reliable ARQ Protocol (Can use at UDP)   https://github.com/skywind3000/kcp
+This project wrap kcp by boost asio. And it's a bench test also.
+
+
 centos 6.5
 1. 先安装 gcc 4.8  : http://blog.csdn.net/dyllove98/article/details/8917485
 
@@ -57,3 +61,5 @@ sudo ln -s /opt/local/bin/g++_48_for_fly /opt/local/bin/g++
 5. 调试命令
  a. 打日志, 过滤掉timer的日志
     ./asio_kcp_server/asio_kcp_server 0.0.0.0 12345 2>&1 | grep --line-buffered -v -e deadline_timer -e "ec=system:0$" -e "|$" >>bserver.txt
+ b. 过滤掉asio日志
+    ./asio_kcp_client/asio_kcp_client 120.26.200.117 23457 500 2>/dev/null
