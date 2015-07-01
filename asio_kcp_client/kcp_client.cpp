@@ -15,6 +15,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <sys/time.h>
+#include <time.h>
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
@@ -24,6 +25,7 @@
 
 #define PACKAGE_LOSE_RATIO 0
 #define PACKAGE_CONTENT_DAMAGE_RATIO 0
+#define SEND_TEST_MSG_INTERVAL 50
 
 /* get system time */
 static inline void itimeofday(long *sec, long *usec)
@@ -56,6 +58,38 @@ std::string get_milly_sec_time_str(void)
     return boost::posix_time::to_iso_extended_string(ptime);
 }
 
+#define CLOCK_INTERVAL_STR "_"
+std::string make_test_str(size_t test_str_size)
+{
+    std::ostringstream ostr;
+    ostr << iclock64();
+    std::string msg_str = ostr.str();
+    msg_str += test_str(CLOCK_INTERVAL_STR, test_str_size - msg_str.size());
+    return msg_str;
+}
+
+std::string get_cur_time_str()
+{
+    time_t tmpcal_ptr = {0};
+    struct tm *tmp_ptr = NULL;
+    tmpcal_ptr = time(NULL);
+    tmp_ptr = localtime(&tmpcal_ptr);
+    std::ostringstream osstrm;
+    osstrm << tmp_ptr->tm_hour << ":" << tmp_ptr->tm_min << "." << tmp_ptr->tm_sec;
+    return osstrm.str();
+}
+
+uint64_t get_time_from_msg(const std::string& msg)
+{
+    std::size_t pos = msg.find(CLOCK_INTERVAL_STR);
+    if (pos == std::string::npos)
+    {
+        std::cout << "wrong msg: " << msg << std::endl;
+        return 0;
+    }
+    const std::string& time_str = msg.substr(0, pos);
+    return std::atoll(time_str.c_str());
+}
 
 namespace server {
 using namespace boost::asio::ip;
@@ -69,18 +103,19 @@ kcp_client::kcp_client(boost::asio::io_service& io_service, int udp_port_bind,
     udp_socket_(io_service, udp::endpoint(udp::v4(), udp_port_bind)),
     dst_end_point_(boost::asio::ip::address::from_string(server_ip), server_port),
     kcp_timer_(io_service),
+    kcp_timer_send_msg_(io_service),
     p_kcp_(NULL),
-    input_(io_service)
+    input_(io_service),
+    test_str_size_(test_str_size)
 {
     static_p_kcp_client = this;
 
     init_kcp();
     hook_udp_async_receive();
     hook_kcp_timer();
+    hook_timer_send_msg();
 
-    test_str_ = test_str("haha", test_str_size);
-    recv_package_times_.push_back(iclock64());
-    send_msg(test_str_);
+    send_test_msg();
 }
 
 void kcp_client::stop_all()
@@ -90,6 +125,11 @@ void kcp_client::stop_all()
   stopped_ = true;
 }
 
+void kcp_client::send_test_msg(void)
+{
+    send_msg(make_test_str(test_str_size_));
+}
+
 void kcp_client::send_msg(const std::string& msg)
 {
     int send_ret = ikcp_send(p_kcp_, msg.c_str(), msg.size());
@@ -97,6 +137,51 @@ void kcp_client::send_msg(const std::string& msg)
     {
         std::cout << "send_ret<0: " << send_ret << std::endl;
     }
+}
+
+void kcp_client::print_recv_log(const std::string& msg)
+{
+    static size_t static_good_recv_count = 0;
+    static uint64_t static_last_refresh_time = 0;
+    static size_t static_recved_bytes = 0;
+    static_recved_bytes += msg.size();
+    uint64_t cur_time = iclock64();
+    uint64_t send_time = get_time_from_msg(msg);
+    uint64_t interval = cur_time - send_time;
+
+    static_good_recv_count++;
+    recv_package_interval_.push_back(interval);
+    recv_package_interval10_.push_back(interval);
+
+    std::cout << interval << "\t";
+
+    if (static_good_recv_count % 10 == 0)
+    {
+
+        int average10 = 0;
+        for (int x : recv_package_interval10_)
+            average10 += x;
+        average10 = (average10 / 10);
+
+        int average_total = 0;
+        for (int x: recv_package_interval_)
+            average_total += x;
+        average_total = average_total / recv_package_interval_.size();
+
+        std::cout << "max: " << *std::max_element( recv_package_interval_.begin(), recv_package_interval_.end() ) <<
+            "  average 10: " << average10 <<
+            "  average total: " << average_total;
+        if (cur_time - static_last_refresh_time > 10 * 1000)
+        {
+            std::cout << " " << static_cast<double>(static_recved_bytes * 10 / (cur_time - static_last_refresh_time)) / 10 << "KB/s(in)";
+            static_last_refresh_time = cur_time;
+            static_recved_bytes = 0;
+        }
+        std::cout << std::endl;
+        std::cout << get_cur_time_str() << " ";
+        recv_package_interval_.clear();
+    }
+    std::cout.flush();
 }
 
 void kcp_client::handle_udp_receive_from(const boost::system::error_code& error, size_t bytes_recvd)
@@ -109,37 +194,40 @@ void kcp_client::handle_udp_receive_from(const boost::system::error_code& error,
         //std::cout << "udp recv: " << bytes_recvd << std::endl <<
         //    Essential::ToHexDumpText(std::string(udp_data_, bytes_recvd), 32) << std::endl;
 
-
-
-        const std::string& msg = recv_udp_package_from_kcp(bytes_recvd);
-        //std::cout << "recv kcp msg: " << msg << std::endl;
-        if (msg.size() > 0 && msg == test_str_)
+        // 丢包测试
+        if (PACKAGE_LOSE_RATIO > 0)
         {
-
+            if (std::rand() % 100 < PACKAGE_LOSE_RATIO)
             {
-                static size_t static_good_recv_count = 0;
-
-                static_good_recv_count++;
-                recv_package_times_.push_back(iclock64());
-
-                size_t last_index = recv_package_times_.size() - 1;
-                uint64_t interval = recv_package_times_[last_index] - recv_package_times_[last_index - 1];
-                recv_package_interval_.push_back(interval);
-                std::cout << interval << "\t";
-
-                if (static_good_recv_count % 10 == 0)
-                {
-                    std::cout << "max: " << *std::max_element( recv_package_interval_.begin(), recv_package_interval_.end() ) <<
-                        "  average 10: " << (recv_package_times_[last_index] - recv_package_times_[last_index - 10]) / 10 <<
-                        "  average total: " << (recv_package_times_[last_index] - recv_package_times_[0]) / (recv_package_times_.size() - 1) <<
-                        std::endl;
-                    recv_package_interval_.clear();
-                }
-                std::cout.flush();
+                std::cout << "udp recv lose package" << std::endl;
+                hook_udp_async_receive();
+                return; // 丢包
             }
+        }
+
+        ikcp_input(p_kcp_, udp_data_, bytes_recvd);
 
 
-            send_msg(msg);
+        while (true)
+        {
+            const std::string& msg = recv_udp_package_from_kcp();
+            //std::cout << "recv kcp msg: " << msg << std::endl;
+            if (msg.size() > 0)
+            {
+                if (msg.size() != test_str_size_)
+                {
+                    std::cout << "recv wrong msg" << std::endl;
+                    break;
+                }
+                else
+                {
+                    // recved good msg.
+
+                    print_recv_log(msg);
+                    continue;
+                }
+            }
+            break;
         }
 
         hook_udp_async_receive();
@@ -208,20 +296,8 @@ void kcp_client::send_udp_package(const char *buf, int len)
     //std::cout << "udp send: " << len << std::endl << Essential::ToHexDumpText(std::string(buf, len), 32) << std::endl;
 }
 
-std::string kcp_client::recv_udp_package_from_kcp(size_t bytes_recvd)
+std::string kcp_client::recv_udp_package_from_kcp()
 {
-    // 丢包测试
-    if (PACKAGE_LOSE_RATIO > 0)
-    {
-        if (std::rand() % 100 < PACKAGE_LOSE_RATIO)
-        {
-            std::cout << "udp recv lose package" << std::endl;
-            return ""; // 丢包
-        }
-    }
-
-
-    ikcp_input(p_kcp_, udp_data_, bytes_recvd);
     char kcp_buf[1024 * 1000] = "";
     int kcp_recvd_bytes = ikcp_recv(p_kcp_, kcp_buf, sizeof(kcp_buf));
     if (kcp_recvd_bytes < 0)
@@ -249,5 +325,18 @@ void kcp_client::handle_kcp_time(void)
     ikcp_update(p_kcp_, iclock());
 }
 
+void kcp_client::hook_timer_send_msg(void)
+{
+    if (stopped_)
+        return;
+    kcp_timer_send_msg_.expires_from_now(boost::posix_time::milliseconds(SEND_TEST_MSG_INTERVAL));
+    kcp_timer_send_msg_.async_wait(std::bind(&kcp_client::handle_timer_send_msg, this));
+}
+
+void kcp_client::handle_timer_send_msg(void)
+{
+    send_test_msg();
+    hook_timer_send_msg();
+}
 
 } // namespace server

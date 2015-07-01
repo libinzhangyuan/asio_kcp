@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
     {
         if (argc != 4)
         {
-            std::cerr << "Usage: game_client <connect_to_host> <connect_to_port> <msg_lenth>\n";
+            std::cerr << "Usage: asio_kcp_client <connect_to_host> <connect_to_port> <msg_lenth>\n";
             return 1;
         }
 

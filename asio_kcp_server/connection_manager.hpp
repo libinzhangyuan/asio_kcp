@@ -47,7 +47,6 @@ private:
     /// The UDP
     void handle_udp_receive_from(const boost::system::error_code& error, size_t bytes_recvd);
     void hook_udp_async_receive(void);
-    void check_udp_package(size_t bytes_recvd);
     static int udp_output(const char *buf, int len, ikcpcb *kcp, void *user);
     static uint64_t endpoint_to_i(const boost::asio::ip::udp::endpoint& ep);
     std::string recv_udp_package_from_kcp(size_t bytes_recvd);

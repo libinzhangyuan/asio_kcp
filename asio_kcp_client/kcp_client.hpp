@@ -41,6 +41,7 @@ public:
 
 private:
     void init_kcp(void);
+    void send_test_msg(void);
 
 private:
     bool stopped_;
@@ -53,9 +54,13 @@ private:
     void check_udp_package(size_t bytes_recvd);
     static int udp_output(const char *buf, int len, ikcpcb *kcp, void *user);
     static uint64_t endpoint_to_i(const boost::asio::ip::udp::endpoint& ep);
-    std::string recv_udp_package_from_kcp(size_t bytes_recvd);
+    std::string recv_udp_package_from_kcp();
+    void print_recv_log(const std::string& msg);
     void handle_kcp_time(void);
     void hook_kcp_timer(void);
+
+    void handle_timer_send_msg(void);
+    void hook_timer_send_msg(void);
 
     /// The UDP
     boost::asio::ip::udp::socket udp_socket_;
@@ -65,14 +70,15 @@ private:
     char udp_data_[1024 * 32];
 
     boost::asio::deadline_timer kcp_timer_;
+    boost::asio::deadline_timer kcp_timer_send_msg_;
     ikcpcb* p_kcp_; // --own
 
     boost::asio::posix::stream_descriptor input_;
     boost::asio::streambuf input_buf_;
 
-    std::string test_str_;
-    std::vector<uint64_t> recv_package_times_; // record the time of recving package for ttl testing.
+    size_t test_str_size_;
     std::vector<uint64_t> recv_package_interval_;
+    std::vector<uint64_t> recv_package_interval10_;
 };
 
 } // namespace server
