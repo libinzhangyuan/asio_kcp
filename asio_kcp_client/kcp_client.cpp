@@ -162,6 +162,7 @@ void kcp_client::print_recv_log(const std::string& msg)
         for (int x : recv_package_interval10_)
             average10 += x;
         average10 = (average10 / 10);
+        recv_package_interval10_.clear();
 
         int average_total = 0;
         for (int x: recv_package_interval_)
