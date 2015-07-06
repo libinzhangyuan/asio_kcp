@@ -259,7 +259,8 @@ void kcp_client::init_kcp(void)
     // 第三个参数 interval为内部处理时钟，默认设置为 10ms
     // 第四个参数 resend为快速重传指标，设置为2
     // 第五个参数 为是否禁用常规流控，这里禁止
-    ikcp_nodelay(p_kcp_, 1, 10, 2, 1);
+    //ikcp_nodelay(p_kcp_, 1, 10, 2, 1);
+    ikcp_nodelay(p_kcp_, 1, 5, 1, 1); // 设置成1次ACK跨越直接重传, 这样反应速度会更快. 内部时钟5毫秒.
 }
 
 uint64_t kcp_client::endpoint_to_i(const boost::asio::ip::udp::endpoint& ep)
