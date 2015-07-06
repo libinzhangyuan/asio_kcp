@@ -179,39 +179,54 @@ void kcp_client::print_recv_log(const std::string& msg)
     static_good_recv_count++;
     recv_package_interval_.push_back(interval);
     recv_package_interval10_.push_back(interval);
+    recv_package_interval100_.push_back(interval);
 
     //std::cout << interval << ":" << send_time << ":" << g_package_send_counter[send_time] << "\t";
     std::cout << interval << ":" << g_package_send_counter[send_time] << "\t";
-
+    g_package_send_counter.erase(send_time);
 
     if (static_good_recv_count % 10 == 0)
     {
-
         int average10 = 0;
         for (int x : recv_package_interval10_)
             average10 += x;
         average10 = (average10 / 10);
-        recv_package_interval10_.clear();
 
-        int average_total = 0;
-        for (int x: recv_package_interval_)
-            average_total += x;
-        average_total = average_total / recv_package_interval_.size();
-
-        std::cout << "max: " << *std::max_element( recv_package_interval10_.begin(), recv_package_interval10_.end() ) <<
-            "  average 10: " << average10 <<
-            "  average total: " << average_total <<
-            "  extra_send: " << (g_count_send_udp_packet * 100 / g_count_send_kcp_packet);
+        std::cout << "max:" << *std::max_element( recv_package_interval10_.begin(), recv_package_interval10_.end() ) <<
+            " avrg10:" << average10;
         if (cur_time - static_last_refresh_time > 10 * 1000)
         {
             std::cout << " " << static_cast<double>(static_recved_bytes * 10 / (cur_time - static_last_refresh_time)) / 10 << "KB/s(in)";
             static_last_refresh_time = cur_time;
             static_recved_bytes = 0;
         }
+        recv_package_interval10_.clear();
+    }
+
+    if (static_good_recv_count % 100 == 0)
+    {
+        int average100 = 0;
+        for (int x : recv_package_interval100_)
+            average100 += x;
+        average100 = (average100 / 100);
+
+        int average_total = 0;
+        for (int x: recv_package_interval_)
+            average_total += x;
+        average_total = average_total / recv_package_interval_.size();
+
+        std::cout << " max100:" << *std::max_element( recv_package_interval100_.begin(), recv_package_interval100_.end() ) <<
+            " avrg100:" << average100 <<
+            " avrgall:" << average_total <<
+            " ext_snd:" << (g_count_send_udp_packet * 100 / g_count_send_kcp_packet);
+        recv_package_interval100_.clear();
+    }
+
+    if (static_good_recv_count % 10 == 0)
+    {
         std::cout << std::endl;
         std::cout << get_cur_time_str() << " ";
     }
-    g_package_send_counter.erase(send_time);
 
     std::cout.flush();
 }

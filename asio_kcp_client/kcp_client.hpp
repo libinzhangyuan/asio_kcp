@@ -79,6 +79,7 @@ private:
     size_t test_str_size_;
     std::vector<uint64_t> recv_package_interval_;
     std::vector<uint64_t> recv_package_interval10_;
+    std::vector<uint64_t> recv_package_interval100_;
 };
 
 } // namespace server
