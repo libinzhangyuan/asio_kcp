@@ -1140,7 +1140,7 @@ int ikcp_setmtu(ikcpcb *kcp, int mtu)
 int ikcp_interval(ikcpcb *kcp, int interval)
 {
 	if (interval > 5000) interval = 5000;
-	else if (interval < 10) interval = 10;
+	else if (interval < 2) interval = 2;
 	kcp->interval = interval;
 	return 0;
 }
@@ -1158,7 +1158,7 @@ int ikcp_nodelay(ikcpcb *kcp, int nodelay, int interval, int resend, int nc)
 	}
 	if (interval >= 0) {
 		if (interval > 5000) interval = 5000;
-		else if (interval < 10) interval = 10;
+		else if (interval < 2) interval = 2;
 		kcp->interval = interval;
 	}
 	if (resend >= 0) {
