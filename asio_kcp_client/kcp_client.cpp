@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <time.h>
+#include <unordered_map>
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
@@ -58,11 +59,12 @@ std::string get_milly_sec_time_str(void)
     return boost::posix_time::to_iso_extended_string(ptime);
 }
 
-#define CLOCK_INTERVAL_STR "_"
+#define CLOCK_START_STR "!ha"
+#define CLOCK_INTERVAL_STR "_ha"
 std::string make_test_str(size_t test_str_size)
 {
     std::ostringstream ostr;
-    ostr << iclock64();
+    ostr << CLOCK_START_STR << iclock64();
     std::string msg_str = ostr.str();
     msg_str += test_str(CLOCK_INTERVAL_STR, test_str_size - msg_str.size());
     return msg_str;
@@ -87,8 +89,27 @@ uint64_t get_time_from_msg(const std::string& msg)
         std::cout << "wrong msg: " << msg << std::endl;
         return 0;
     }
-    const std::string& time_str = msg.substr(0, pos);
+    const std::string& time_str = msg.substr(0 + sizeof(CLOCK_START_STR) - 1, pos);
+    //std::cout << "time_str: " << time_str << std::endl;
     return std::atoll(time_str.c_str());
+}
+
+std::unordered_map<uint64_t /*package_send_time*/, size_t /*send_counter*/> g_package_send_counter;
+uint64_t search_time_from_kcp_str(const std::string& kcp_str)
+{
+    //std::cout << "udp send: " << kcp_str.size() << std::endl << Essential::ToHexDumpText(kcp_str, 32) << std::endl;
+
+    auto end_iter = kcp_str.find(CLOCK_INTERVAL_STR);
+    if (end_iter == std::string::npos)
+        return 0;
+
+    auto start_iter = kcp_str.find(CLOCK_START_STR);
+    if (start_iter == std::string::npos)
+        return 0;
+
+    uint64_t ret = std::atoll(&kcp_str[start_iter] + sizeof(CLOCK_START_STR) -1);
+    //std::cout << "search_time_from_kcp_str: " << ret << std::endl;
+    return ret;
 }
 
 namespace server {
@@ -153,7 +174,9 @@ void kcp_client::print_recv_log(const std::string& msg)
     recv_package_interval_.push_back(interval);
     recv_package_interval10_.push_back(interval);
 
-    std::cout << interval << "\t";
+    //std::cout << interval << ":" << send_time << ":" << g_package_send_counter[send_time] << "\t";
+    std::cout << interval << ":" << g_package_send_counter[send_time] << "\t";
+
 
     if (static_good_recv_count % 10 == 0)
     {
@@ -169,7 +192,7 @@ void kcp_client::print_recv_log(const std::string& msg)
             average_total += x;
         average_total = average_total / recv_package_interval_.size();
 
-        std::cout << "max: " << *std::max_element( recv_package_interval_.begin(), recv_package_interval_.end() ) <<
+        std::cout << "max: " << *std::max_element( recv_package_interval10_.begin(), recv_package_interval10_.end() ) <<
             "  average 10: " << average10 <<
             "  average total: " << average_total;
         if (cur_time - static_last_refresh_time > 10 * 1000)
@@ -180,8 +203,9 @@ void kcp_client::print_recv_log(const std::string& msg)
         }
         std::cout << std::endl;
         std::cout << get_cur_time_str() << " ";
-        recv_package_interval_.clear();
     }
+    g_package_send_counter.erase(send_time);
+
     std::cout.flush();
 }
 
@@ -283,6 +307,13 @@ void kcp_client::send_udp_package(const char *buf, int len)
     static_send_udp_packet_count++;
     //std::cout << "send_udp_package: " << static_send_udp_packet_count << "   - " << get_milly_sec_time_str() << std::endl;
 
+
+    // recording the send packet count.   记录kcp控制的发包次数
+    {
+        uint64_t id = search_time_from_kcp_str(std::string(buf, len)); // using time in msg as id.
+        if (id != 0)
+            g_package_send_counter[id] = g_package_send_counter[id] + 1;
+    }
 
     // 丢包测试
     if (PACKAGE_LOSE_RATIO > 0)

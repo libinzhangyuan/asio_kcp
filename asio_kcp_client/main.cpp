@@ -24,16 +24,15 @@ int main(int argc, char* argv[])
 {
     try
     {
-        if (argc != 4)
+        if (argc != 5)
         {
-            std::cerr << "Usage: asio_kcp_client <connect_to_host> <connect_to_port> <msg_lenth>\n";
+            std::cerr << "Usage: asio_kcp_client <port_bind_to> <connect_to_host> <connect_to_port> <msg_lenth>\n";
+            std::cerr << "asio_kcp_client 22222 232.23.223.1 12345 500\n";
             return 1;
         }
 
         boost::asio::io_service io_service;
-
-        int udp_port_bind = 12345;
-        test_kcp(io_service, udp_port_bind, argv[1], std::atoi(argv[2]), std::atoi(argv[3]));
+        test_kcp(io_service, std::atoi(argv[1]), argv[2], std::atoi(argv[3]), std::atoi(argv[4]));
     }
     catch (std::exception& e)
     {
