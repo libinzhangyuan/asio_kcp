@@ -34,5 +34,5 @@
 .svn
 ./**/.svn
 
-asio_kcp_client/asio_kcp_client
-asio_kcp_server/asio_kcp_server
+client_with_asio/client_with_asio
+server/server

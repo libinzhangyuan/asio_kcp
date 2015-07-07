@@ -1,22 +1,15 @@
 //
 // server.hpp
-// ~~~~~~~~~~
-//
-// Copyright (c) 2003-2014 Christopher M. Kohlhoff (chris at kohlhoff dot com)
-//
-// Distributed under the Boost Software License, Version 1.0. (See accompanying
-// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
 
-#ifndef HTTP_SERVER_HPP
-#define HTTP_SERVER_HPP
+#ifndef KCP_SERVER_HPP
+#define KCP_SERVER_HPP
 
 #include <boost/asio.hpp>
 #include <string>
 #include <boost/noncopyable.hpp>
 #include "connection_manager.hpp"
 
-namespace server {
+namespace kcp_svr {
 
 class server
   : private boost::noncopyable
@@ -39,9 +32,9 @@ private:
   boost::asio::signal_set signals_;
 
   /// The connection manager which owns all live connections.
-  connection_manager connection_manager_;
+  kcp_svr::connection_manager connection_manager_;
 };
 
-} // namespace server
+} // namespace kcp_svr
 
-#endif // HTTP_SERVER_HPP
+#endif // KCP_SERVER_HPP

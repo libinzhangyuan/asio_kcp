@@ -12,14 +12,12 @@
 #include <algorithm>
 #include <boost/bind.hpp>
 
-#include "../essential/utility/strutil.h"
-#include "../net/ikcp.h"
+#include "../../essential/utility/strutil.h"
+#include "../ikcp.h"
 #include <cstdlib>
 #include <iostream>
 #include <unistd.h>
 #include <sys/time.h>
-//#include <sys/wait.h>
-//#include <sys/types.h>
 
 /* get system time */
 static inline void itimeofday(long *sec, long *usec)
@@ -47,9 +45,9 @@ static inline IUINT32 iclock()
 }
 
 
-namespace server {
-using namespace boost::asio::ip;
+namespace kcp_svr {
 
+using namespace boost::asio::ip;
 
 static connection_manager* static_p_connection_manager = NULL;
 
@@ -102,7 +100,7 @@ void connection_manager::handle_udp_receive_from(const boost::system::error_code
         */
 
         ikcp_input(p_kcp_, udp_data_, bytes_recvd);
-/*
+/* recalling ikcp_recv is no sence
         while (true)
         {
             char kcp_buf[1024 * 1000] = "";
@@ -218,4 +216,4 @@ void connection_manager::handle_kcp_time(void)
 }
 
 
-} // namespace server
+} // namespace kcp_svr

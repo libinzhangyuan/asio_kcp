@@ -1,15 +1,5 @@
-//
-// connection_manager.hpp
-// ~~~~~~~~~~~~~~~~~~~~~~
-//
-// Copyright (c) 2003-2014 Christopher M. Kohlhoff (chris at kohlhoff dot com)
-//
-// Distributed under the Boost Software License, Version 1.0. (See accompanying
-// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
-
-#ifndef _BS_CONNECTION_MANAGER_HPP
-#define _BS_CONNECTION_MANAGER_HPP
+#ifndef _KCP_CONNECTION_HPP_
+#define _KCP_CONNECTION_HPP_
 
 #include <set>
 #include <unordered_map>
@@ -20,7 +10,7 @@
 struct IKCPCB;
 typedef struct IKCPCB ikcpcb;
 
-namespace server {
+namespace kcp_svr {
 
 /// Manages open connections so that they may be cleanly stopped when the server
 /// needs to shut down.
@@ -32,7 +22,6 @@ public:
 
     /// Stop all connections.
     void stop_all();
-
 
     // user level send msg.
     void send_kcp_msg(const std::string& msg);
@@ -65,6 +54,6 @@ private:
     ikcpcb* p_kcp_; // --own
 };
 
-} // namespace server
+} // namespace kcp_svr
 
-#endif // _BS_CONNECTION_MANAGER_HPP
+#endif // _KCP_CONNECTION_HPP_

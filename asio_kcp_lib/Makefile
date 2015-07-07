@@ -64,12 +64,11 @@ LC_OS_NAME = $(shell echo $(OS_NAME) | tr '[A-Z]' '[a-z]')
 MY_CFLAGS =
 
 # The linker options.
-MY_LIBS   = $(BOOST_LIB_PATH)/libboost_system-mt.a $(BOOST_LIB_PATH)/libboost_filesystem-mt.a $(BOOST_LIB_PATH)/libboost_thread-mt.a ../essential/essential.a
+MY_LIBS   =
 
 
 # The pre-processor options used by the cpp (man cpp for more).
-#CPPFLAGS  = -Wall -I essential -I ddlib -O2
-CPPFLAGS  = -Wall -I $(BOOST_INC_PATH) -I $(PB_INC_PATH) -g3 -D BOOST_ASIO_ENABLE_HANDLER_TRACKING -D BOOST_ASIO_ENABLE_BUFFER_DEBUGGING
+CPPFLAGS  = -Wall -I $(BOOST_INC_PATH) -g3 -D BOOST_ASIO_ENABLE_HANDLER_TRACKING -D BOOST_ASIO_ENABLE_BUFFER_DEBUGGING
 
 # The options used in linking as well as in any direct use of ld.
 ifeq ($(LC_OS_NAME), darwin)
@@ -81,11 +80,11 @@ endif
 
 # The directories in which source files reside.
 # If not specified, only the current directory will be serached.
-SRCDIRS   = ./ ../pb/ ../net/
+SRCDIRS   = ./ ./server/
 
 # The executable file name.
 # If not specified, current directory name or `a.out' will be used.
-PROGRAM   = asio_kcp_server
+PROGRAM   = asio_kcp.a
 
 ## Implicit Section: change the following only when necessary.
 ##==========================================================================
@@ -199,13 +198,7 @@ ctags: $(HEADERS) $(SOURCES)
 # Rules for generating the executable.
 #-------------------------------------
 $(PROGRAM):$(OBJS)
-ifeq ($(SRC_CXX),)              # C program
-	$(LINK.c)   $(OBJS) $(MY_LIBS) -o $@
-	@echo Type ./$@ to execute the program.
-else                            # C++ program
-	$(LINK.cxx) $(OBJS) $(MY_LIBS) -o $@
-	@echo Type ./$@ to execute the program.
-endif
+	ar -cr $@ $(OBJS)
 
 ifndef NODEP
 ifneq ($(DEPS),)

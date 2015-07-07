@@ -64,27 +64,28 @@ LC_OS_NAME = $(shell echo $(OS_NAME) | tr '[A-Z]' '[a-z]')
 MY_CFLAGS =
 
 # The linker options.
-MY_LIBS   = $(BOOST_LIB_PATH)/libboost_system-mt.a $(BOOST_LIB_PATH)/libboost_filesystem-mt.a $(BOOST_LIB_PATH)/libboost_thread-mt.a $(BOOST_LIB_PATH)/libboost_date_time-mt.a ../essential/essential.a
+MY_LIBS   = $(BOOST_LIB_PATH)/libboost_system-mt.a $(BOOST_LIB_PATH)/libboost_filesystem-mt.a $(BOOST_LIB_PATH)/libboost_thread-mt.a ../essential/essential.a ../asio_kcp_lib/asio_kcp.a
 
 
 # The pre-processor options used by the cpp (man cpp for more).
 #CPPFLAGS  = -Wall -I essential -I ddlib -O2
-CPPFLAGS  = -Wall -I $(BOOST_INC_PATH) -I $(PB_INC_PATH) -g3 -D BOOST_ASIO_ENABLE_HANDLER_TRACKING -D BOOST_ASIO_ENABLE_BUFFER_DEBUGGING
+CPPFLAGS  = -Wall -I $(BOOST_INC_PATH) -I ../asio_kcp -g3 -D BOOST_ASIO_ENABLE_HANDLER_TRACKING -D BOOST_ASIO_ENABLE_BUFFER_DEBUGGING
 
 # The options used in linking as well as in any direct use of ld.
 ifeq ($(LC_OS_NAME), darwin)
-  LDFLAGS   = -L/opt/local/lib -pthread
+    LDFLAGS   = -L/opt/local/lib -pthread
 else
-  LDFLAGS   = -L/opt/local/lib -pthread -lrt
+    LDFLAGS   = -L/opt/local/lib -pthread -lrt
 endif
+
 
 # The directories in which source files reside.
 # If not specified, only the current directory will be serached.
-SRCDIRS   = ./ ../pb/ ../net/
+SRCDIRS   = ./
 
 # The executable file name.
 # If not specified, current directory name or `a.out' will be used.
-PROGRAM   = asio_kcp_client
+PROGRAM   = server
 
 ## Implicit Section: change the following only when necessary.
 ##==========================================================================

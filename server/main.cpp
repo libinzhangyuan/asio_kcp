@@ -12,7 +12,7 @@
 #include <string>
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
-#include "server.hpp"
+#include "../asio_kcp_lib/server/server.hpp"
 
 int main(int argc, char* argv[])
 {
@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
     }
 
     // Initialise the server.
-    server::server s(argv[1], argv[2]);
+    kcp_svr::server s(argv[1], argv[2]);
 
     // Run the server until stopped.
     s.run();

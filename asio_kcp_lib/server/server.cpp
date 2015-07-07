@@ -13,9 +13,9 @@
 #include <signal.h>
 #include <cstdlib>
 
-#include "../essential/utility/strutil.h"
+#include "../../essential/utility/strutil.h"
 
-namespace server {
+namespace kcp_svr {
 
 server::server(const std::string& address, const std::string& port)
   : io_service_(),
@@ -50,4 +50,4 @@ void server::handle_stop()
   connection_manager_.stop_all();
 }
 
-} // namespace server
+} // namespace kcp_svr
