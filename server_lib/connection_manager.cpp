@@ -7,9 +7,9 @@
 #include <unistd.h>
 #include <sys/time.h>
 
-#include "../../essential/utility/strutil.h"
-#include "../ikcp.h"
-#include "../connect_packet.hpp"
+#include "../essential/utility/strutil.h"
+#include "../util/ikcp.h"
+#include "../util/connect_packet.hpp"
 
 /* get system time */
 static inline void itimeofday(long *sec, long *usec)

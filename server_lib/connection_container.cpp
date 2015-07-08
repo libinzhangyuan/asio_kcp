@@ -2,8 +2,8 @@
 #include <algorithm>
 #include <boost/bind.hpp>
 
-#include "../../essential/utility/strutil.h"
-#include "../ikcp.h"
+#include "../essential/utility/strutil.h"
+#include "../util/ikcp.h"
 #include <cstdlib>
 #include <iostream>
 #include <unistd.h>

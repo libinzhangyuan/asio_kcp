@@ -11,9 +11,9 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 
 #include "../essential/utility/strutil.h"
-#include "../asio_kcp_lib/ikcp.h"
+#include "../util/ikcp.h"
 #include "test_util.h"
-#include "../asio_kcp_lib/connect_packet.hpp"
+#include "../util/connect_packet.hpp"
 
 #define PACKAGE_LOSE_RATIO 0
 #define PACKAGE_CONTENT_DAMAGE_RATIO 0

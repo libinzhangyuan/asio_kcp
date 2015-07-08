@@ -3,7 +3,7 @@
 #include <signal.h>
 #include <cstdlib>
 
-#include "../../essential/utility/strutil.h"
+#include "../essential/utility/strutil.h"
 
 namespace kcp_svr {
 

@@ -10,7 +10,7 @@ export BOOST_INC_PATH
 echo "" && echo "" && echo "[-------------------------------]" && echo "   essential" && echo "[-------------------------------]" && \
     cd ./essential/ && make && \
 echo "" && echo "" && echo "[-------------------------------]" && echo "   asio_kcp" && echo "[-------------------------------]" && \
-    cd ../asio_kcp_lib/ && make && \
+    cd ../server_lib/ && make && \
 echo "" && echo "" && echo "[-------------------------------]" && echo "   server" && echo "[-------------------------------]" && \
     cd ../server/ && make && \
 echo "" && echo "" && echo "[-------------------------------]" && echo "   client_with_asio" && echo "[-------------------------------]" && \

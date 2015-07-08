@@ -12,7 +12,7 @@
 #include <string>
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
-#include "../asio_kcp_lib/server/server.hpp"
+#include "../server_lib/server.hpp"
 
 int main(int argc, char* argv[])
 {
