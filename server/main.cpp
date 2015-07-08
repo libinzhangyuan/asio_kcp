@@ -21,11 +21,11 @@ int main(int argc, char* argv[])
     // Check command line arguments.
     if (argc != 3)
     {
-      std::cerr << "Usage: battle_server <address> <port>\n";
+      std::cerr << "Usage: server <address> <port>\n";
       std::cerr << "  For IPv4, try:\n";
-      std::cerr << "    battle_server 0.0.0.0 80\n";
+      std::cerr << "    server 0.0.0.0 80\n";
       std::cerr << "  For IPv6, try:\n";
-      std::cerr << "    battle_server 0::0 80\n";
+      std::cerr << "    server 0::0 80\n";
       return 1;
     }
 

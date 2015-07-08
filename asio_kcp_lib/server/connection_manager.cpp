@@ -1,23 +1,14 @@
-//
-// connection_manager.cpp
-// ~~~~~~~~~~~~~~~~~~~~~~
-//
-// Copyright (c) 2003-2014 Christopher M. Kohlhoff (chris at kohlhoff dot com)
-//
-// Distributed under the Boost Software License, Version 1.0. (See accompanying
-// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
-
 #include "connection_manager.hpp"
 #include <algorithm>
 #include <boost/bind.hpp>
 
-#include "../../essential/utility/strutil.h"
-#include "../ikcp.h"
 #include <cstdlib>
 #include <iostream>
 #include <unistd.h>
 #include <sys/time.h>
+
+#include "../../essential/utility/strutil.h"
+#include "../ikcp.h"
 
 /* get system time */
 static inline void itimeofday(long *sec, long *usec)
@@ -39,52 +30,32 @@ static inline uint64_t iclock64(void)
 }
 
 
-static inline IUINT32 iclock()
+static inline uint32_t iclock()
 {
-    return (IUINT32)(iclock64() & 0xfffffffful);
+    return (uint32_t)(iclock64() & 0xfffffffful);
 }
 
 
 namespace kcp_svr {
 
-using namespace boost::asio::ip;
-
-static connection_manager* static_p_connection_manager = NULL;
-
 connection_manager::connection_manager(boost::asio::io_service& io_service, const std::string& address, int udp_port) :
     stopped_(false),
-    udp_socket_(io_service, udp::endpoint(boost::asio::ip::address_v4::from_string(address), udp_port)),
-    kcp_timer_(io_service),
-    p_kcp_(NULL)
+    udp_socket_(io_service, udp::endpoint(boost::asio::ip::address::from_string(address), udp_port)),
+    kcp_timer_(io_service)
 {
-    static_p_connection_manager = this;
-    //udp_socket_.set_option(boost::asio::ip::udp::socket::non_blocking_io(true));
+    //udp_socket_.set_option(udp::socket::non_blocking_io(false)); // why this make compile fail
 
-    init_kcp();
     hook_udp_async_receive();
     hook_kcp_timer();
 }
 
 void connection_manager::stop_all()
 {
+  stopped_ = true;
+  connections_.stop_all();
+
   udp_socket_.cancel();
   udp_socket_.close();
-  stopped_ = true;
-}
-
-void connection_manager::send_kcp_msg(const std::string& msg)
-{
-    int send_ret = ikcp_send(p_kcp_, msg.c_str(), msg.size());
-    if (send_ret < 0)
-    {
-        std::cout << "send_ret<0: " << send_ret << std::endl;
-    }
-}
-
-void connection_manager::send_back_udp_package_by_kcp(const std::string& package)
-{
-    std::cout << "send_back_udp_package_by_kcp" << std::endl;
-    send_kcp_msg(package);
 }
 
 void connection_manager::handle_udp_receive_from(const boost::system::error_code& error, size_t bytes_recvd)
@@ -99,45 +70,26 @@ void connection_manager::handle_udp_receive_from(const boost::system::error_code
             Essential::ToHexDumpText(std::string(udp_data_, bytes_recvd), 32) << std::endl;
         */
 
-        ikcp_input(p_kcp_, udp_data_, bytes_recvd);
-/* recalling ikcp_recv is no sence
-        while (true)
-        {
-            char kcp_buf[1024 * 1000] = "";
-            int kcp_recvd_bytes = ikcp_recv(p_kcp_, kcp_buf, sizeof(kcp_buf));
-            if (kcp_recvd_bytes <= 0)
-            {
-                std::cout << "\nkcp_recvd_bytes<=0: " << kcp_recvd_bytes << std::endl;
-                break;
-            }
-            const std::string package(kcp_buf, kcp_recvd_bytes);
-            std::cout << "\nkcp recv: " << kcp_recvd_bytes << std::endl << Essential::ToHexDumpText(package, 32) << std::endl;
-            send_back_udp_package_by_kcp(package);
+        IUINT32 conv;
+        int ret = ikcp_get_conv(udp_data_, bytes_recvd, &conv);
+        if (ret == 0)
+            goto END;
 
+        connection::shared_ptr conn_ptr = connections_.find_by_conv(conv);
+        if (!conn_ptr)
+            conn_ptr = connections_.add_new_connection(udp_socket_, conv);
 
-            ikcp_input(p_kcp_, "", 0);
-        }
-*/
-        {
-            char kcp_buf[1024 * 1000] = "";
-            int kcp_recvd_bytes = ikcp_recv(p_kcp_, kcp_buf, sizeof(kcp_buf));
-            if (kcp_recvd_bytes <= 0)
-            {
-                std::cout << "\nkcp_recvd_bytes<=0: " << kcp_recvd_bytes << std::endl;
-            }
-            else
-            {
-                const std::string package(kcp_buf, kcp_recvd_bytes);
-                std::cout << "\nkcp recv: " << kcp_recvd_bytes << std::endl << Essential::ToHexDumpText(package, 32) << std::endl;
-                send_back_udp_package_by_kcp(package);
-            }
-        }
+        if (conn_ptr)
+            conn_ptr->input(udp_data_, bytes_recvd, udp_sender_endpoint_);
+        else
+            std::cout << "add_new_connection failed! can not connect!" << std::endl;
     }
     else
     {
         printf("\nhandle_udp_receive_from error end! error: %s, bytes_recvd: %ld\n", error.message().c_str(), bytes_recvd);
     }
 
+END:
     hook_udp_async_receive();
 }
 
@@ -152,53 +104,12 @@ void connection_manager::hook_udp_async_receive(void)
               boost::asio::placeholders::bytes_transferred));
 }
 
-void connection_manager::init_kcp(void)
-{
-    p_kcp_ = ikcp_create(123456, (void*)10);
-    p_kcp_->output = &connection_manager::udp_output;
 
-    // 启动快速模式
-    // 第二个参数 nodelay-启用以后若干常规加速将启动
-    // 第三个参数 interval为内部处理时钟，默认设置为 10ms
-    // 第四个参数 resend为快速重传指标，设置为2
-    // 第五个参数 为是否禁用常规流控，这里禁止
-    //ikcp_nodelay(p_kcp_, 1, 10, 2, 1);
-    ikcp_nodelay(p_kcp_, 1, 5, 1, 1); // 设置成1次ACK跨越直接重传, 这样反应速度会更快. 内部时钟5毫秒.
-}
-
-uint64_t connection_manager::endpoint_to_i(const boost::asio::ip::udp::endpoint& ep)
+uint64_t connection_manager::endpoint_to_i(const udp::endpoint& ep)
 {
     uint64_t addr_i = ep.address().to_v4().to_ulong();
     uint32_t port = ep.port();
     return (addr_i << 32) + port;
-}
-
-// 发送一个 udp包
-int connection_manager::udp_output(const char *buf, int len, ikcpcb *kcp, void *user)
-{
-    static_p_connection_manager->send_udp_package(buf, len);
-	return 0;
-}
-
-void connection_manager::send_udp_package(const char *buf, int len)
-{
-    udp_socket_.send_to(boost::asio::buffer(buf, len), udp_sender_endpoint_);
-    //std::cout << "\nudp send: " << len << std::endl << Essential::ToHexDumpText(std::string(buf, len), 32) << std::endl;
-}
-
-
-std::string connection_manager::recv_udp_package_from_kcp(size_t bytes_recvd)
-{
-    char kcp_buf[1024 * 1000] = "";
-    int kcp_recvd_bytes = ikcp_recv(p_kcp_, kcp_buf, sizeof(kcp_buf));
-    if (kcp_recvd_bytes < 0)
-    {
-        std::cout << "\nkcp_recvd_bytes<0: " << kcp_recvd_bytes << std::endl;
-        return "";
-    }
-    const std::string result(kcp_buf, kcp_recvd_bytes);
-    std::cout << "\nkcp recv: " << kcp_recvd_bytes << std::endl << Essential::ToHexDumpText(result, 32) << std::endl;
-    return result;
 }
 
 void connection_manager::hook_kcp_timer(void)
@@ -211,8 +122,9 @@ void connection_manager::hook_kcp_timer(void)
 
 void connection_manager::handle_kcp_time(void)
 {
+    //std::cout << "."; std::cout.flush();
     hook_kcp_timer();
-    ikcp_update(p_kcp_, iclock());
+    connections_.update_all_kcp(iclock());
 }
 
 

@@ -1,6 +1,3 @@
-//
-// server.hpp
-
 #ifndef KCP_SERVER_HPP
 #define KCP_SERVER_HPP
 
