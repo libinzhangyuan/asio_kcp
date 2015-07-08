@@ -677,6 +677,18 @@ void ikcp_parse_data(ikcpcb *kcp, IKCPSEG *newseg)
 #endif
 }
 
+// get conv from packet
+// return 1 if get conv success.
+// return 0 if get conv error.
+int ikcp_get_conv(const char *data, long size, IUINT32* conv_out)
+{
+    if (data == NULL || size < (int)IKCP_OVERHEAD)
+        return 0;
+
+    ikcp_decode32u(data, conv_out);
+    return 1;
+}
+
 
 //---------------------------------------------------------------------
 // input data

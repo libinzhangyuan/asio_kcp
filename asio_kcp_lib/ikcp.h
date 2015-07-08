@@ -271,6 +271,7 @@ struct IKCPSEG
 	char data[1];
 };
 
+typedef IUINT32 kcp_conv_t;
 
 //---------------------------------------------------------------------
 // IKCPCB
@@ -355,6 +356,12 @@ void ikcp_update(ikcpcb *kcp, IUINT32 current);
 // schedule ikcp_update (eg. implementing an epoll-like mechanism, 
 // or optimize ikcp_update when handling massive kcp connections)
 IUINT32 ikcp_check(const ikcpcb *kcp, IUINT32 current);
+
+// Get conv from a udp packet.
+// you can use this func to find out one packet should bind to which ikcpcb obj.
+// return 1 if get conv success.
+// return 0 if get conv error.
+int ikcp_get_conv(const char *data, long size, IUINT32* conv_out);
 
 // when you received a low level packet (eg. UDP packet), call it
 int ikcp_input(ikcpcb *kcp, const char *data, long size);
