@@ -23,15 +23,18 @@ public:
 
 private:
 
-private:
-    bool stopped_;
-
     /// The UDP
     void handle_udp_receive_from(const boost::system::error_code& error, size_t bytes_recvd);
     void hook_udp_async_receive(void);
     static uint64_t endpoint_to_i(const udp::endpoint& ep);
     void handle_kcp_time(void);
     void hook_kcp_timer(void);
+
+    void handle_connect_packet();
+    void handle_kcp_packet(size_t bytes_recvd);
+
+private:
+    bool stopped_;
 
     /// The listen socket.
     udp::socket udp_socket_;

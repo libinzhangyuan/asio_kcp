@@ -9,6 +9,7 @@
 
 #include "../../essential/utility/strutil.h"
 #include "../ikcp.h"
+#include "../connect_packet.hpp"
 
 /* get system time */
 static inline void itimeofday(long *sec, long *usec)
@@ -58,6 +59,30 @@ void connection_manager::stop_all()
   udp_socket_.close();
 }
 
+void connection_manager::handle_connect_packet()
+{
+    kcp_conv_t conv = connections_.get_new_conv();
+    std::string send_back_msg = asio_kcp::making_send_back_conv_packet(conv);
+    udp_socket_.send_to(boost::asio::buffer(send_back_msg), udp_sender_endpoint_);
+}
+
+void connection_manager::handle_kcp_packet(size_t bytes_recvd)
+{
+    IUINT32 conv;
+    int ret = ikcp_get_conv(udp_data_, bytes_recvd, &conv);
+    if (ret == 0)
+        return;
+
+    connection::shared_ptr conn_ptr = connections_.find_by_conv(conv);
+    if (!conn_ptr)
+        conn_ptr = connections_.add_new_connection(udp_socket_, conv);
+
+    if (conn_ptr)
+        conn_ptr->input(udp_data_, bytes_recvd, udp_sender_endpoint_);
+    else
+        std::cout << "add_new_connection failed! can not connect!" << std::endl;
+}
+
 void connection_manager::handle_udp_receive_from(const boost::system::error_code& error, size_t bytes_recvd)
 {
     if (!error && bytes_recvd > 0)
@@ -70,19 +95,13 @@ void connection_manager::handle_udp_receive_from(const boost::system::error_code
             Essential::ToHexDumpText(std::string(udp_data_, bytes_recvd), 32) << std::endl;
         */
 
-        IUINT32 conv;
-        int ret = ikcp_get_conv(udp_data_, bytes_recvd, &conv);
-        if (ret == 0)
+        if (asio_kcp::is_connect_packet(udp_data_, bytes_recvd))
+        {
+            handle_connect_packet();
             goto END;
+        }
 
-        connection::shared_ptr conn_ptr = connections_.find_by_conv(conv);
-        if (!conn_ptr)
-            conn_ptr = connections_.add_new_connection(udp_socket_, conv);
-
-        if (conn_ptr)
-            conn_ptr->input(udp_data_, bytes_recvd, udp_sender_endpoint_);
-        else
-            std::cout << "add_new_connection failed! can not connect!" << std::endl;
+        handle_kcp_packet(bytes_recvd);
     }
     else
     {

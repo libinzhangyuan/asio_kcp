@@ -29,9 +29,9 @@ public:
     /// Stop all connections.
     void stop_all();
 
+    void send_test_msg(void);
 private:
     void init_kcp(void);
-    void send_test_msg(void);
 
 private:
     bool stopped_;

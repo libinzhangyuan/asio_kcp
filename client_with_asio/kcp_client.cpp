@@ -13,6 +13,7 @@
 #include "../essential/utility/strutil.h"
 #include "../asio_kcp_lib/ikcp.h"
 #include "test_util.h"
+#include "../asio_kcp_lib/connect_packet.hpp"
 
 #define PACKAGE_LOSE_RATIO 0
 #define PACKAGE_CONTENT_DAMAGE_RATIO 0
@@ -129,8 +130,6 @@ kcp_client::kcp_client(boost::asio::io_service& io_service, int udp_port_bind,
     hook_udp_async_receive();
     hook_kcp_timer();
     hook_timer_send_msg();
-
-    send_test_msg();
 }
 
 void kcp_client::stop_all()
@@ -142,6 +141,12 @@ void kcp_client::stop_all()
 
 void kcp_client::send_test_msg(void)
 {
+    // test connect packet   -- need del
+    {
+        //udp_socket_.send_to(boost::asio::buffer(asio_kcp::making_connect_packet()), dst_end_point_);
+    }
+
+
     send_msg(make_test_str(test_str_size_));
 }
 

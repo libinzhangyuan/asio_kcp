@@ -15,6 +15,8 @@ enum { max_length = 1024 };
 void test_kcp(boost::asio::io_service &io_service, const int port_bind_to, const char* ip, const int port, size_t kcp_msg_size)
 {
     server::kcp_client client(io_service, port_bind_to, std::string(ip), port, kcp_msg_size);
+
+    client.send_test_msg();
     io_service.run();
 }
 
