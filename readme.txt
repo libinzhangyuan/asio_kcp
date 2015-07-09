@@ -13,7 +13,16 @@ Compile
 4. $ . allmake.sh
 
 
-3. run test
+Compile unit test
+1. download gtest from https://googletest.googlecode.com/files/gtest-1.7.0.zip
+     or just use the package in install_pack folder.
+2. unpack the gtest-1.7.0.zip. coping gtest-1.7.0 folder to asio_kcp/
+3. $ cd gtest-1.7.0 && ./configure && make
+4. back to asio_kcp folder then $ . allmake.sh
+5. $ ./asio_kcp_utest/asio_kcp_utest
+
+
+Run example test
  a. filter the verbose log from asio timer
     ./server/server 0.0.0.0 12345 2>&1 | grep --line-buffered -v -e deadline_timer -e "ec=system:0$" -e "|$" >>bserver.txt
  b. filter all asio log

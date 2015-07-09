@@ -15,6 +15,8 @@ echo "" && echo "" && echo "[-------------------------------]" && echo "   serve
     cd ../server/ && make && \
 echo "" && echo "" && echo "[-------------------------------]" && echo "   client_with_asio" && echo "[-------------------------------]" && \
     cd ../client_with_asio/ && make && \
+echo "" && echo "" && echo "[-------------------------------]" && echo "   asio_kcp_utest" && echo "[-------------------------------]" && \
+    cd ../asio_kcp_utest/ && make && \
 echo ""
 
 # restore old path.

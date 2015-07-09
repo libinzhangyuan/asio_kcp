@@ -34,5 +34,8 @@
 .svn
 ./**/.svn
 
+asio_kcp_utest/asio_kcp_utest
 client_with_asio/client_with_asio
+gtest-1.7.0
+install_pack
 server/server
