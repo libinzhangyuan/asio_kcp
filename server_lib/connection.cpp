@@ -36,7 +36,7 @@ connection::shared_ptr connection::create(udp::socket& udp_socket, const kcp_con
     {
         ptr->init_kcp(conv);
         ptr->set_udp_sender_endpoint(udp_sender_endpoint);
-        AK_LOG(INFO) << "new connection from: " << udp_sender_endpoint;
+        AK_INFO_LOG << "new connection from: " << udp_sender_endpoint;
     }
     return ptr;
 }
