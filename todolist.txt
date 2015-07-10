@@ -1,0 +1,13 @@
+1. 考虑是否essential util 合一. 跟引入项目的方式相关
+2. 考虑日志构架.
+3. 考虑单元测试. gtest gmock
+4. 制作client_lib
+5. client发connect包.
+6. allmake.sh quick_make.sh 中判断是否有gtest-1.7.0目录，决定是否编译asio_kcp_utest.
+7. allmake.sh返回编译成功失败的结果
+
+
+
+1. handle the re recving the connect packet.  e.g. resend by client because of lag.
+2. 添加用户身份验证, 防止恶意攻击.
+3. 添加包内容验证，防止传输出错, 恶意修改, 恶意攻击.

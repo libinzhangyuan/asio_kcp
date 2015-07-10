@@ -9,17 +9,43 @@ Compile
    Other version of gcc should be OK if you succeed the compiling.
 2. I using boost 1.58
    Other version of boost should be OK if you succeed the compiling.
-3. in asio_kcp folder run   $ git clone https://github.com/libinzhangyuan/kcp.git
-4. $ . allmake.sh
+3. Build g2log
+   download g2log from http://www.codeproject.com/Articles/288827/g-log-An-efficient-asynchronous-logger-using-Cplus#TOC_initialization
+       or just use the package in third_party.
+   cope g2log folder to third_party folder
+   $ cd third_party/g2log/ &&  mkdir build && cd build && cmake .. && make
+4. modify the BOOST_LIB_PATH and BOOST_INC_PATH in allmake.sh
+5. do compiling at project root folder: $ . allmake.sh
+
+The third_party folder should be like below,
+▾ third_party/
+  ▾ g2log/
+    ▸ build/
+    ▸ src/
+    ▸ test_example/
+    ▸ test_performance/
+    ▸ test_unit/
+      CMakeLists.txt
 
 
 Compile unit test
 1. download gtest from https://googletest.googlecode.com/files/gtest-1.7.0.zip
-     or just use the package in install_pack folder.
-2. unpack the gtest-1.7.0.zip. coping gtest-1.7.0 folder to asio_kcp/
+     or just use the package in third_party folder.
+2. unpack the gtest-1.7.0.zip. coping gtest-1.7.0 folder to asio_kcp/third_party/
 3. $ cd gtest-1.7.0 && ./configure && make
-4. back to asio_kcp folder then $ . allmake.sh
-5. $ ./asio_kcp_utest/asio_kcp_utest
+4. download googlemock from https://googlemock.googlecode.com/files/gmock-1.7.0.zip
+     or just use the package in third_party folder.
+5. unpack the gmock-1.7.0.zip. coping gmock-1.7.0 folder to asio_kcp/third_party/
+6. $ cd gmock-1.7.0 && ./configure && make
+7. back to asio_kcp folder then $ . utest_make.sh
+8. $ ./asio_kcp_utest/asio_kcp_utest
+
+The third_party folder should be like below,
+▾ third_party/
+  ▸ g2log/
+  ▸ gmock-1.7.0/
+  ▸ gtest-1.7.0/
+
 
 
 Run example test
