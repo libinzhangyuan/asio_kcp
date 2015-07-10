@@ -49,21 +49,21 @@ const IUINT32 IKCP_PROBE_LIMIT = 120000;	// up to 120 secs to probe window
 //---------------------------------------------------------------------
 
 /* encode 8 bits unsigned int */
-static inline char *ikcp_encode8u(char *p, unsigned char c)
+static INLINE char *ikcp_encode8u(char *p, unsigned char c)
 {
 	*(unsigned char*)p++ = c;
 	return p;
 }
 
 /* decode 8 bits unsigned int */
-static inline const char *ikcp_decode8u(const char *p, unsigned char *c)
+static INLINE const char *ikcp_decode8u(const char *p, unsigned char *c)
 {
 	*c = *(unsigned char*)p++;
 	return p;
 }
 
 /* encode 16 bits unsigned int (lsb) */
-static inline char *ikcp_encode16u(char *p, unsigned short w)
+static INLINE char *ikcp_encode16u(char *p, unsigned short w)
 {
 #if IWORDS_BIG_ENDIAN
 	*(unsigned char*)(p + 0) = (w & 255);
@@ -76,7 +76,7 @@ static inline char *ikcp_encode16u(char *p, unsigned short w)
 }
 
 /* decode 16 bits unsigned int (lsb) */
-static inline const char *ikcp_decode16u(const char *p, unsigned short *w)
+static INLINE const char *ikcp_decode16u(const char *p, unsigned short *w)
 {
 #if IWORDS_BIG_ENDIAN
 	*w = *(const unsigned char*)(p + 1);
@@ -89,7 +89,7 @@ static inline const char *ikcp_decode16u(const char *p, unsigned short *w)
 }
 
 /* encode 32 bits unsigned int (lsb) */
-static inline char *ikcp_encode32u(char *p, IUINT32 l)
+static INLINE char *ikcp_encode32u(char *p, IUINT32 l)
 {
 #if IWORDS_BIG_ENDIAN
 	*(unsigned char*)(p + 0) = (unsigned char)((l >>  0) & 0xff);
@@ -104,7 +104,7 @@ static inline char *ikcp_encode32u(char *p, IUINT32 l)
 }
 
 /* decode 32 bits unsigned int (lsb) */
-static inline const char *ikcp_decode32u(const char *p, IUINT32 *l)
+static INLINE const char *ikcp_decode32u(const char *p, IUINT32 *l)
 {
 #if IWORDS_BIG_ENDIAN
 	*l = *(const unsigned char*)(p + 3);
@@ -118,20 +118,20 @@ static inline const char *ikcp_decode32u(const char *p, IUINT32 *l)
 	return p;
 }
 
-static inline IUINT32 _imin_(IUINT32 a, IUINT32 b) {
+static INLINE IUINT32 _imin_(IUINT32 a, IUINT32 b) {
 	return a <= b ? a : b;
 }
 
-static inline IUINT32 _imax_(IUINT32 a, IUINT32 b) {
+static INLINE IUINT32 _imax_(IUINT32 a, IUINT32 b) {
 	return a >= b ? a : b;
 }
 
-static inline IUINT32 _ibound_(IUINT32 lower, IUINT32 middle, IUINT32 upper) 
+static INLINE IUINT32 _ibound_(IUINT32 lower, IUINT32 middle, IUINT32 upper) 
 {
 	return _imin_(_imax_(lower, middle), upper);
 }
 
-static inline long _itimediff(IUINT32 later, IUINT32 earlier) 
+static INLINE long _itimediff(IUINT32 later, IUINT32 earlier) 
 {
 	return ((IINT32)(later - earlier));
 }

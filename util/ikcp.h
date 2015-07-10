@@ -123,10 +123,6 @@ typedef unsigned long long IUINT64;
 #endif
 #endif
 
-#ifndef inline
-#define inline INLINE
-#endif
-
 
 //=====================================================================
 // QUEUE DEFINITION                                                  
