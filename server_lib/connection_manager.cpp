@@ -75,7 +75,7 @@ void connection_manager::handle_kcp_packet(size_t bytes_recvd)
 
     connection::shared_ptr conn_ptr = connections_.find_by_conv(conv);
     if (!conn_ptr)
-        conn_ptr = connections_.add_new_connection(udp_socket_, conv);
+        conn_ptr = connections_.add_new_connection(udp_socket_, conv, udp_sender_endpoint_);
 
     if (conn_ptr)
         conn_ptr->input(udp_data_, bytes_recvd, udp_sender_endpoint_);

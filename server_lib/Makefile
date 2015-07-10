@@ -68,7 +68,7 @@ MY_LIBS   =
 
 
 # The pre-processor options used by the cpp (man cpp for more).
-CPPFLAGS  = -Wall -I $(BOOST_INC_PATH) -g3 -D BOOST_ASIO_ENABLE_HANDLER_TRACKING -D BOOST_ASIO_ENABLE_BUFFER_DEBUGGING
+CPPFLAGS  = -Wall -I $(BOOST_INC_PATH) -I ../third_party/g2log/src -g3 -D BOOST_ASIO_ENABLE_HANDLER_TRACKING -D BOOST_ASIO_ENABLE_BUFFER_DEBUGGING
 
 # The options used in linking as well as in any direct use of ld.
 ifeq ($(LC_OS_NAME), darwin)

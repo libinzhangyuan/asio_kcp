@@ -8,6 +8,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <sys/time.h>
+#include "asio_kcp_log.hpp"
 
 
 namespace kcp_svr {
@@ -28,12 +29,21 @@ connection::~connection(void)
     conv_ = 0;
 }
 
-connection::shared_ptr connection::create(udp::socket& udp_socket, const kcp_conv_t& conv)
+connection::shared_ptr connection::create(udp::socket& udp_socket, const kcp_conv_t& conv, const udp::endpoint& udp_sender_endpoint)
 {
     shared_ptr ptr = std::make_shared<connection>(udp_socket);
     if (ptr)
+    {
         ptr->init_kcp(conv);
+        ptr->set_udp_sender_endpoint(udp_sender_endpoint);
+        AK_LOG(INFO) << "new connection from: " << udp_sender_endpoint;
+    }
     return ptr;
+}
+
+void connection::set_udp_sender_endpoint(const udp::endpoint& udp_sender_endpoint)
+{
+    udp_sender_endpoint_ = udp_sender_endpoint;
 }
 
 void connection::init_kcp(const kcp_conv_t& conv)

@@ -41,9 +41,9 @@ void connection_container::stop_all()
     connections_.clear();
 }
 
-connection::shared_ptr connection_container::add_new_connection(udp::socket& udp_socket, const kcp_conv_t& conv)
+connection::shared_ptr connection_container::add_new_connection(udp::socket& udp_socket, const kcp_conv_t& conv, const udp::endpoint& udp_sender_endpoint)
 {
-    connection::shared_ptr ptr = connection::create(udp_socket, conv);
+    connection::shared_ptr ptr = connection::create(udp_socket, conv, udp_sender_endpoint);
     connections_[conv] = ptr;
     return ptr;
 }

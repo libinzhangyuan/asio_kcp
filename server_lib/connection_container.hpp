@@ -22,7 +22,7 @@ public:
 
     void stop_all();
 
-    connection::shared_ptr add_new_connection(udp::socket& udp_socket, const kcp_conv_t& conv);
+    connection::shared_ptr add_new_connection(udp::socket& udp_socket, const kcp_conv_t& conv, const udp::endpoint& udp_sender_endpoint);
 
     kcp_conv_t get_new_conv(void) const;
 private:

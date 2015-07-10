@@ -36,6 +36,7 @@
 
 asio_kcp_utest/asio_kcp_utest
 client_with_asio/client_with_asio
-gtest-1.7.0
-install_pack
+third_party/gtest-1.7.0
+third_party/gmock-1.7.0
+third_party/g2log
 server/server

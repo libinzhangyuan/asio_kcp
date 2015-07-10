@@ -3,6 +3,9 @@
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include "../server_lib/server.hpp"
+#include "g2logworker.h"
+#include "g2log.h"
+#include "asio_kcp_log.hpp"
 
 int main(int argc, char* argv[])
 {
@@ -18,6 +21,12 @@ int main(int argc, char* argv[])
       std::cerr << "    server 0::0 80\n";
       return 1;
     }
+
+    std::string path_to_log_file("/tmp/asio_kcp/");
+    g2LogWorker logger(argv[0], path_to_log_file);
+    g2::initializeLogging(&logger);
+
+    AK_LOG(INFO) << "Test SLOG INFO";
 
     // Initialise the server.
     kcp_svr::server s(argv[1], argv[2]);

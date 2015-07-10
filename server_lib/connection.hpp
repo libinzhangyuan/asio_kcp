@@ -25,7 +25,9 @@ public:
     connection(udp::socket& udp_socket);
     ~connection(void);
 
-    static connection::shared_ptr create(udp::socket& udp_socket, const kcp_conv_t& conv);
+    static connection::shared_ptr create(udp::socket& udp_socket, const kcp_conv_t& conv, const udp::endpoint& udp_sender_endpoint);
+
+    void set_udp_sender_endpoint(const udp::endpoint& udp_sender_endpoint);
 
     // changing udp_sender_endpoint at every packet. Because we allow connection change ip or port. we using conv to indicate a connection.
     void input(char* udp_data, size_t bytes_recvd, const udp::endpoint& udp_sender_endpoint);
