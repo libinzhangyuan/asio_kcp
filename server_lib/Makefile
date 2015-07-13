@@ -68,7 +68,8 @@ MY_LIBS   =
 
 
 # The pre-processor options used by the cpp (man cpp for more).
-CPPFLAGS  = -Wall -I $(BOOST_INC_PATH) -I ../third_party/g2log/src -g3 -D BOOST_ASIO_ENABLE_HANDLER_TRACKING -D BOOST_ASIO_ENABLE_BUFFER_DEBUGGING
+CPPFLAGS  = -Wall -I $(BOOST_INC_PATH) -I ../third_party/g2log/src -I ../third_party/muduo -g3 -D BOOST_ASIO_ENABLE_HANDLER_TRACKING -D BOOST_ASIO_ENABLE_BUFFER_DEBUGGING
+# CPPFLAGS  = -Wall -Wextra -Wconversion -Wno-unused-parameter -Wno-sign-conversion -Wold-style-cast -Woverloaded-virtual -Wpointer-arith -Wshadow -Wwrite-strings -I $(BOOST_INC_PATH) -I ../third_party/g2log/src -I ../third_party/muduo -g3 -D BOOST_ASIO_ENABLE_HANDLER_TRACKING -D BOOST_ASIO_ENABLE_BUFFER_DEBUGGING
 
 # The options used in linking as well as in any direct use of ld.
 ifeq ($(LC_OS_NAME), darwin)

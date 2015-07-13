@@ -64,11 +64,12 @@ LC_OS_NAME = $(shell echo $(OS_NAME) | tr '[A-Z]' '[a-z]')
 MY_CFLAGS =
 
 # The linker options.
-MY_LIBS   = $(BOOST_LIB_PATH)/libboost_system-mt.a $(BOOST_LIB_PATH)/libboost_filesystem-mt.a $(BOOST_LIB_PATH)/libboost_thread-mt.a ../essential/essential.a ../server_lib/asio_kcp_server.a ../third_party/g2log/build/liblib_g2logger.a
+MY_LIBS   = $(BOOST_LIB_PATH)/libboost_system-mt.a $(BOOST_LIB_PATH)/libboost_filesystem-mt.a $(BOOST_LIB_PATH)/libboost_thread-mt.a ../essential/essential.a ../server_lib/asio_kcp_server.a ../third_party/g2log/build/liblib_g2logger.a ../third_party/build/release/lib/libmuduo_base_cpp11.a
 
 
 # The pre-processor options used by the cpp (man cpp for more).
-CPPFLAGS  = -Wall -I $(BOOST_INC_PATH) -I ../server_lib -I ../third_party/g2log/src -g3 -D BOOST_ASIO_ENABLE_HANDLER_TRACKING -D BOOST_ASIO_ENABLE_BUFFER_DEBUGGING
+CPPFLAGS  = -Wall -I $(BOOST_INC_PATH) -I ../third_party/muduo -I ../server_lib -I ../third_party/g2log/src -g3 -D BOOST_ASIO_ENABLE_HANDLER_TRACKING -D BOOST_ASIO_ENABLE_BUFFER_DEBUGGING
+# CPPFLAGS  = -Wall -Wextra -Wconversion -Wno-unused-parameter -Wno-sign-conversion -Wold-style-cast -Woverloaded-virtual -Wpointer-arith -Wshadow -Wwrite-strings -I $(BOOST_INC_PATH) -I ../third_party/muduo -I ../server_lib -I ../third_party/g2log/src -g3 -D BOOST_ASIO_ENABLE_HANDLER_TRACKING -D BOOST_ASIO_ENABLE_BUFFER_DEBUGGING
 
 # The options used in linking as well as in any direct use of ld.
 ifeq ($(LC_OS_NAME), darwin)
