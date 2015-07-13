@@ -7,15 +7,31 @@ You can see the bench mark test result at https://github.com/libinzhangyuan/reli
 Compile
 1. I using gcc 4.8
    Other version of gcc should be OK if you succeed the compiling.
+
 2. I using boost 1.58
    Other version of boost should be OK if you succeed the compiling.
+
 3. Build g2log
    download g2log from http://www.codeproject.com/Articles/288827/g-log-An-efficient-asynchronous-logger-using-Cplus#TOC_initialization
        or just use the package in third_party.
    cope g2log folder to third_party folder
    $ cd third_party/g2log/ &&  mkdir build && cd build && cmake .. && make
-4. modify the BOOST_LIB_PATH and BOOST_INC_PATH in allmake.sh
-5. do compiling at project root folder: $ . allmake.sh
+
+4. Build muduo
+   $ cd third_party/
+   $ git clone https://github.com/chenshuo/muduo.git      # - or just using the pack in third_party folder.
+   $ cd muduo
+   $ if you compile on OSX:  $ patch -p1 < MacOSX.diff
+   $ edit muduo/CMakeLists.txt.
+        find set(CXX_FLAGS  then add 2 new line:
+            #-D__GXX_EXPERIMENTAL_CXX0X__
+            -std=c++11
+        comment -march=native
+        comment set(CMAKE_CXX_COMPILER "clang++")
+   $ CC=gcc CXX=g++ BUILD_TYPE=release BUILD_NO_EXAMPLES=1 . build.sh
+
+5. modify the BOOST_LIB_PATH and BOOST_INC_PATH in allmake.sh
+6. do compiling at project root folder: $ . allmake.sh
 
 The third_party folder should be like below,
 ▾ third_party/
@@ -26,6 +42,7 @@ The third_party folder should be like below,
     ▸ test_performance/
     ▸ test_unit/
       CMakeLists.txt
+  ▸ muduo/
 
 
 Compile unit test
@@ -45,6 +62,7 @@ The third_party folder should be like below,
   ▸ g2log/
   ▸ gmock-1.7.0/
   ▸ gtest-1.7.0/
+  ▸ muduo/
 
 
 
