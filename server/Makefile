@@ -64,7 +64,7 @@ LC_OS_NAME = $(shell echo $(OS_NAME) | tr '[A-Z]' '[a-z]')
 MY_CFLAGS =
 
 # The linker options.
-MY_LIBS   = $(BOOST_LIB_PATH)/libboost_system-mt.a $(BOOST_LIB_PATH)/libboost_filesystem-mt.a $(BOOST_LIB_PATH)/libboost_thread-mt.a ../essential/essential.a ../server_lib/asio_kcp_server.a ../third_party/g2log/build/liblib_g2logger.a ../third_party/build/release/lib/libmuduo_base_cpp11.a
+MY_LIBS   = ../server_lib/asio_kcp_server.a ../essential/essential.a $(BOOST_LIB_PATH)/libboost_system-mt.a $(BOOST_LIB_PATH)/libboost_filesystem-mt.a $(BOOST_LIB_PATH)/libboost_thread-mt.a ../third_party/g2log/build/liblib_g2logger.a ../third_party/build/release/lib/libmuduo_base_cpp11.a
 
 
 # The pre-processor options used by the cpp (man cpp for more).
