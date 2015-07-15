@@ -106,6 +106,8 @@ uint64_t search_time_from_kcp_str(const std::string& kcp_str)
 size_t g_count_send_udp_packet = 0;
 size_t g_count_send_kcp_packet = 0;
 
+uint64_t g_count_send_udp_size = 0;
+uint64_t g_count_send_kcp_size = 0;
 
 namespace server {
 using namespace boost::asio::ip;
@@ -153,6 +155,7 @@ void kcp_client::send_test_msg(void)
 void kcp_client::send_msg(const std::string& msg)
 {
     g_count_send_kcp_packet++;
+    g_count_send_kcp_size += msg.size();
 
     int send_ret = ikcp_send(p_kcp_, msg.c_str(), msg.size());
     if (send_ret < 0)
@@ -170,6 +173,12 @@ void kcp_client::print_recv_log(const std::string& msg)
     uint64_t cur_time = iclock64();
     uint64_t send_time = get_time_from_msg(msg);
     uint64_t interval = cur_time - send_time;
+
+    if (static_good_recv_count == 0)
+    {
+        std::cout << std::endl;
+        std::cout << get_cur_time_str() << " ";
+    }
 
     static_good_recv_count++;
     recv_package_interval_.push_back(interval);
@@ -189,16 +198,17 @@ void kcp_client::print_recv_log(const std::string& msg)
 
         std::cout << "max:" << *std::max_element( recv_package_interval10_.begin(), recv_package_interval10_.end() ) <<
             " avrg10:" << average10;
-        if (cur_time - static_last_refresh_time > 10 * 1000)
-        {
-            std::cout << " " << static_cast<double>(static_recved_bytes * 10 / (cur_time - static_last_refresh_time)) / 10 << "KB/s(in)";
-            static_last_refresh_time = cur_time;
-            static_recved_bytes = 0;
-        }
         recv_package_interval10_.clear();
     }
 
-    if (static_good_recv_count % 100 == 0)
+    if (cur_time - static_last_refresh_time > 10 * 1000 && static_good_recv_count % 100 == 30 && static_good_recv_count != 30)
+    {
+        std::cout << " " << static_cast<double>(static_recved_bytes * 10 / (cur_time - static_last_refresh_time)) / 10 << "KB/s(in)";
+        static_last_refresh_time = cur_time;
+        static_recved_bytes = 0;
+    }
+
+    if (static_good_recv_count % 100 == 0 && static_good_recv_count != 0)
     {
         int average100 = 0;
         for (int x : recv_package_interval100_)
@@ -212,9 +222,14 @@ void kcp_client::print_recv_log(const std::string& msg)
 
         std::cout << " max100:" << *std::max_element( recv_package_interval100_.begin(), recv_package_interval100_.end() ) <<
             " avrg100:" << average100 <<
-            " avrgall:" << average_total <<
-            " ext_snd:" << (g_count_send_udp_packet * 100 / g_count_send_kcp_packet);
+            " avrgall:" << average_total;
         recv_package_interval100_.clear();
+    }
+
+    if (static_good_recv_count % 100 == 10 && static_good_recv_count != 10)
+    {
+        std::cout << " ext_packet_snd:" << (g_count_send_udp_packet * 100 / g_count_send_kcp_packet) << "%"
+            << " ext_size_snd:" << g_count_send_udp_size * 100 / g_count_send_kcp_size << "%";
     }
 
     if (static_good_recv_count % 10 == 0)
@@ -328,6 +343,7 @@ void kcp_client::send_udp_package(const char *buf, int len)
     // recording the send udp packet count.   记录kcp控制的udp发包次数
     {
         g_count_send_udp_packet++;
+        g_count_send_udp_size += len;
         uint64_t id = search_time_from_kcp_str(std::string(buf, len)); // using time in msg as id.
         if (id != 0)
             g_package_send_counter[id] = g_package_send_counter[id] + 1;
