@@ -72,6 +72,17 @@ public:
 
          return ret;
      }
+     std::queue<T> wait_and_grab_all(void)
+     {
+         std::queue<T> ret;
+
+         {
+             std::unique_lock<std::mutex> lk(mut);
+             data_cond.wait(lk,[this]{return !data_queue.empty();});
+             std::swap(ret, data_queue);
+         }
+         return ret;
+     }
      bool empty() const
      {
          std::lock_guard<std::mutex> lk(mut);
