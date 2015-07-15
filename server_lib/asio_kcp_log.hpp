@@ -6,8 +6,15 @@
 #include <fstream>
 #include <utility>
 
+#include <muduo/base/Logging.h>
+//#include <muduo/base/LogFile.h>
+
+
 // using g2log for asio_kcp_server. Because it's asynchronous and thread safe.
 // g2log doc: http://www.codeproject.com/Articles/288827/g-log-An-efficient-asynchronous-logger-using-Cplus
+
+
+// using muduo for kcp packet log. Because I want to split the logic log and the package log.
 
 
 
@@ -55,7 +62,9 @@ public:
 #define AK_WARNING_LOG  AK_LOG(WORNING)
 #define AK_FATAL_LOG    AK_LOG(FATAL)
 
-#define AK_UDP_PACKET_LOG(endpoint, conv) (AK_DEBUG_LOG << "udp_send_to:" << endpoint << " conv:" << conv << " ")
+#define AK_MUDUO_LOG_INFO LOG_INFO  // log structure from muduo
 
+#define AK_UDP_PACKET_LOG AK_MUDUO_LOG_INFO
+#define AK_ASK_PACKET_LOG AK_MUDUO_LOG_INFO
 
 #endif // _ASIO_KCP_LOG_HPP__

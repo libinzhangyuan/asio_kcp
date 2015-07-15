@@ -10,6 +10,7 @@
 #include "../essential/utility/strutil.h"
 #include "../util/ikcp.h"
 #include "../util/connect_packet.hpp"
+#include "asio_kcp_log.hpp"
 
 /* get system time */
 static inline void itimeofday(long *sec, long *usec)
@@ -94,6 +95,13 @@ void connection_manager::handle_udp_receive_from(const boost::system::error_code
         std::cout << "udp recv: " << bytes_recvd << std::endl <<
             Essential::ToHexDumpText(std::string(udp_data_, bytes_recvd), 32) << std::endl;
         */
+
+        #if AK_ENABLE_UDP_PACKET_LOG
+            AK_UDP_PACKET_LOG << "udp_recv:" << udp_sender_endpoint_.address().to_string() << ":" << udp_sender_endpoint_.port()
+                << " conv:" << 0
+                << " size:" << bytes_recvd << "\n"
+                << Essential::ToHexDumpText(std::string(udp_data_, bytes_recvd), 32);
+        #endif
 
         if (asio_kcp::is_connect_packet(udp_data_, bytes_recvd))
         {

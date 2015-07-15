@@ -71,7 +71,13 @@ int connection::udp_output(const char *buf, int len, ikcpcb *kcp, void *user)
 void connection::send_udp_package(const char *buf, int len)
 {
     udp_socket_.send_to(boost::asio::buffer(buf, len), udp_sender_endpoint_);
-    //std::cout << "\nudp send: " << len << std::endl << Essential::ToHexDumpText(std::string(buf, len), 32) << std::endl;
+
+#if AK_ENABLE_UDP_PACKET_LOG
+    AK_UDP_PACKET_LOG << "udp_send:" << udp_sender_endpoint_.address().to_string() << ":" << udp_sender_endpoint_.port()
+        << " conv:" << conv_
+        << " size:" << len << "\n"
+        << Essential::ToHexDumpText(std::string(buf, len), 32);
+#endif
 }
 
 void connection::send_kcp_msg(const std::string& msg)
