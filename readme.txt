@@ -6,10 +6,10 @@ You can see the bench mark test result at https://github.com/libinzhangyuan/reli
 
 Compile
 1. I using gcc 4.8
-   Other version of gcc should be OK if you succeed the compiling.
+   Other version of gcc that support c++11 should be OK. You can compile asio_kcp as verifying.
 
 2. I using boost 1.58
-   Other version of boost should be OK if you succeed the compiling.
+   Other version of boost should be OK. You can compile asio_kcp as verifying.
 
 3. Build g2log
    download g2log from http://www.codeproject.com/Articles/288827/g-log-An-efficient-asynchronous-logger-using-Cplus#TOC_initialization
@@ -21,13 +21,22 @@ Compile
    $ cd third_party/
    $ git clone https://github.com/chenshuo/muduo.git      # - or just using the pack in third_party folder.
    $ cd muduo
-   $ if you compile on OSX:  $ patch -p1 < MacOSX.diff
-   $ edit muduo/CMakeLists.txt.
-        find set(CXX_FLAGS  then add 2 new line:
-            #-D__GXX_EXPERIMENTAL_CXX0X__
-            -std=c++11
-        comment -march=native
-        comment set(CMAKE_CXX_COMPILER "clang++")
+   compile on OSX:  $ patch -p1 < MacOSX.diff
+        edit muduo/CMakeLists.txt.
+            find set(CXX_FLAGS  then add 2 new line:
+                -D__GXX_EXPERIMENTAL_CXX0X__
+                -std=c++11
+            comment -march=native
+            comment set(CMAKE_CXX_COMPILER "clang++")
+            uncomment -DMUDUO_STD_STRING
+   compile on linux:
+        edit muduo/CMakeLists.txt.
+            find set(CXX_FLAGS  then add 2 new line:
+                -D__GXX_EXPERIMENTAL_CXX0X__
+                -std=c++11
+            uncomment -DMUDUO_STD_STRING
+   modify muduo/base/LogStream.h   kSmallBuffer = 4000  ->  kSmallBuffer = 4000*4
+   adding VERBOSE=1 to "make" in muduo/build.sh will show detail of compiling.
    $ CC=gcc CXX=g++ BUILD_TYPE=release BUILD_NO_EXAMPLES=1 . build.sh
 
 5. modify the BOOST_LIB_PATH and BOOST_INC_PATH in allmake.sh

@@ -1,6 +1,6 @@
 kcp is a A Fast and Reliable ARQ Protocol (Can use at UDP)   https://github.com/skywind3000/kcp
 This project wrap kcp by boost asio. Making it easy to use.
-And it's a bench test also.
+And it's a bench test for kcp also.
 
 
 centos 6.5
@@ -64,3 +64,10 @@ sudo ln -s /opt/local/bin/g++_48_for_fly /opt/local/bin/g++
     ./asio_kcp_server/asio_kcp_server 0.0.0.0 12345 2>&1 | grep --line-buffered -v -e deadline_timer -e "ec=system:0$" -e "|$" >>bserver.txt
  b. 过滤掉asio日志
     ./asio_kcp_client/asio_kcp_client 120.26.200.117 23457 500 2>/dev/null
+
+6. git push报错
+error: The requested URL returned error: 403 Forbidden while accessing https://github.com/libinzhangyuan/asio_kcp.git/info/refs
+修改.git/config
+  https://github.com/libinzhangyuan/asio_kcp.git
+    to
+  https://libinzhangyuan@github.com/libinzhangyuan/asio_kcp.git

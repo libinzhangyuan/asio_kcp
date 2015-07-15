@@ -5,7 +5,9 @@
 5. client发connect包.
 6. allmake.sh quick_make.sh 中判断是否有gtest-1.7.0目录，决定是否编译asio_kcp_utest.
 7. allmake.sh返回编译成功失败的结果
-
+-done 8. 包输出日志 自己实现一个异步输出的 or 用muduo ? -- 先用muduo
+9. 包输出引入packet_id_for_log
+10. 自动建立软链接到最新日志文件.
 
 
 1. handle the re recving the connect packet.  e.g. resend by client because of lag.
