@@ -10,7 +10,7 @@
 using namespace std::chrono;
 
 TEST(ThreadSafeQueueTest, GrabAll) {
-    threadsafe_queue<std::string> queue;
+    Essential::threadsafe_queue<std::string> queue;
     EXPECT_EQ(0, queue.grab_all().size());
 
     queue.push("111111111111");
@@ -23,7 +23,7 @@ TEST(ThreadSafeQueueTest, wait_and_grab_all) {
 
     // have things in queue
     {
-        threadsafe_queue<std::string> queue;
+        Essential::threadsafe_queue<std::string> queue;
         queue.push("111111111111");
         queue.push("22222222222222");
         EXPECT_EQ(2, queue.wait_and_grab_all().size());
@@ -32,7 +32,7 @@ TEST(ThreadSafeQueueTest, wait_and_grab_all) {
 
     // have nothing in queue
     {
-        threadsafe_queue<std::string> queue;
+        Essential::threadsafe_queue<std::string> queue;
         std::function<void()> task( [&]() {
                 std::this_thread::sleep_for(milliseconds(10));
                 queue.push("111111111111");

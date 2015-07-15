@@ -1,7 +1,13 @@
+#pragma once
+
+#include "../es_config.h"
+
 #include <queue>
 #include <memory>
 #include <mutex>
 #include <condition_variable>
+
+BEGIN_ES_NAMESPACE
 
 template<typename T>
 class threadsafe_queue
@@ -89,3 +95,5 @@ public:
          return data_queue.empty();
      }
 };
+
+END_ES_NAMESPACE
