@@ -221,9 +221,13 @@ int ToHexDigit( char c )
 	return rstString;
 }
 
-std::string hexdump_oneline(const std::string& line, size_t width)
+std::string hexdump_oneline(const std::string& prefix, const std::string& line, size_t width)
 {
     std::ostringstream ostrm;
+    ostrm << prefix;
+
+    // hex
+    //
     for (size_t i=0;i< line.size(); i++)
     {
         char hex_text[16] = "";
@@ -232,20 +236,35 @@ std::string hexdump_oneline(const std::string& line, size_t width)
         if (i == 7 || i == 15 || i == 23)
             ostrm << ' ';
     }
+
+    // the space between hex and text
+    //
     for (unsigned long spacer = line.size(); spacer < width ; spacer++)
-        ostrm << "    ";
+        ostrm << "   ";
+    if (line.size() <= 8)
+        ostrm << "   ";
+    else if (line.size() <= 16)
+        ostrm << "  ";
+    else if (line.size() <= 24)
+        ostrm << " ";
     ostrm << ": ";
+
+
+    // text
+    //
     for (size_t i = 0; i < line.size(); i++)
     {
-        if (line[i] < 32) ostrm << '.';
-        else ostrm << char(line[i]);
+        if (line[i] < 32)
+            ostrm << '.';
+        else
+            ostrm << char(line[i]);
     }
     ostrm << std::endl;
 
     return ostrm.str();
 }
 
-::std::string ToHexDumpText(const std::string& _Str, size_t width)
+::std::string ToHexDumpText(const std::string& _Str, size_t width, const std::string& prefix)
 {
     std::ostringstream ostrm;
 
@@ -253,11 +272,11 @@ std::string hexdump_oneline(const std::string& line, size_t width)
     while (str.size() > width)
     {
         ::std::string line(str.c_str(), width);
-        ostrm << hexdump_oneline(line, width);
+        ostrm << hexdump_oneline(prefix, line, width);
         str = str.substr(width);
     }
     if (str.size() > 0)
-        ostrm << hexdump_oneline(str, width);
+        ostrm << hexdump_oneline(prefix, str, width);
     return ostrm.str();
 }
 

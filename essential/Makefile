@@ -63,7 +63,7 @@ MY_LIBS   =
 
 # The pre-processor options used by the cpp (man cpp for more).
 #CPPFLAGS  = -Wall -O2
-CPPFLAGS  = -Wall -D _UTEST_ -g
+CPPFLAGS  = -Wall -D _UTEST_ -g3
 
 # The options used in linking as well as in any direct use of ld.
 LDFLAGS   =
