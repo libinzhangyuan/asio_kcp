@@ -37,7 +37,7 @@ Compile
             uncomment -DMUDUO_STD_STRING
    modify muduo/base/LogStream.h   kSmallBuffer = 4000  ->  kSmallBuffer = 4000*4
    adding VERBOSE=1 to "make" in muduo/build.sh will show detail of compiling.
-   $ CC=gcc CXX=g++ BUILD_TYPE=release BUILD_NO_EXAMPLES=1 . build.sh
+   $ CC=gcc CXX=g++ BUILD_DIR=./build BUILD_TYPE=release BUILD_NO_EXAMPLES=1 . build.sh
 
 5. modify the BOOST_LIB_PATH and BOOST_INC_PATH in allmake.sh
 6. do compiling at project root folder: $ . allmake.sh
