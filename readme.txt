@@ -28,6 +28,7 @@ Compile
                 -std=c++11
             comment -march=native
             comment set(CMAKE_CXX_COMPILER "clang++")
+            comment -Werror
             uncomment -DMUDUO_STD_STRING
    compile on linux:
         edit muduo/CMakeLists.txt.
@@ -35,6 +36,7 @@ Compile
                 -D__GXX_EXPERIMENTAL_CXX0X__
                 -std=c++11
             uncomment -DMUDUO_STD_STRING
+            comment -Werror
    modify muduo/base/LogStream.h   kSmallBuffer = 4000  ->  kSmallBuffer = 4000*4
    adding VERBOSE=1 to "make" in muduo/build.sh will show detail of compiling.
    $ CC=gcc CXX=g++ BUILD_DIR=./build BUILD_TYPE=release BUILD_NO_EXAMPLES=1 . build.sh
