@@ -6,14 +6,12 @@
 #include <memory>
 #include <boost/noncopyable.hpp>
 #include <boost/asio.hpp>
-
-struct IKCPCB;
-typedef struct IKCPCB ikcpcb;
-typedef uint32_t kcp_conv_t;
+#include "kcp_typedef.hpp"
 
 namespace kcp_svr {
 
 using namespace boost::asio::ip;
+class connection_manager;
 
 class connection
   : private boost::noncopyable
@@ -22,10 +20,11 @@ public:
     typedef std::shared_ptr<connection> shared_ptr;
     typedef std::weak_ptr<connection> weak_ptr;
 
-    connection(udp::socket& udp_socket);
+    connection(const std::weak_ptr<connection_manager>& manager_ptr);
     ~connection(void);
 
-    static connection::shared_ptr create(udp::socket& udp_socket, const kcp_conv_t& conv, const udp::endpoint& udp_sender_endpoint);
+    static connection::shared_ptr create(const std::weak_ptr<connection_manager>& manager_ptr,
+            const kcp_conv_t& conv, const udp::endpoint& udp_sender_endpoint);
 
     void set_udp_sender_endpoint(const udp::endpoint& udp_sender_endpoint);
 
@@ -47,8 +46,7 @@ private:
     void send_back_udp_package_by_kcp(const std::string& package);
 
 private:
-    /// The UDP
-    udp::socket& udp_socket_; // -- known
+    std::weak_ptr<connection_manager> connection_manager_weak_ptr_; // -known
     kcp_conv_t conv_;
     ikcpcb* p_kcp_; // --own
     udp::endpoint udp_sender_endpoint_;

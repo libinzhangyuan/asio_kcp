@@ -10,6 +10,8 @@
 
 namespace kcp_svr {
 
+class connection_manager;
+
 class connection;
 
 class connection_container
@@ -22,7 +24,8 @@ public:
 
     void stop_all();
 
-    connection::shared_ptr add_new_connection(udp::socket& udp_socket, const kcp_conv_t& conv, const udp::endpoint& udp_sender_endpoint);
+    connection::shared_ptr add_new_connection(std::weak_ptr<connection_manager> manager_ptr,
+            const kcp_conv_t& conv, const udp::endpoint& udp_sender_endpoint);
 
     kcp_conv_t get_new_conv(void) const;
 private:

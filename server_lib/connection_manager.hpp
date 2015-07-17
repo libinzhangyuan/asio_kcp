@@ -13,20 +13,31 @@
 namespace kcp_svr {
 
 class connection_manager
-  : private boost::noncopyable
+  : private boost::noncopyable, public std::enable_shared_from_this<connection_manager>
 {
 public:
+
+    typedef std::shared_ptr<connection_manager> shared_ptr;
+
     connection_manager(boost::asio::io_service& io_service, const std::string& address, int udp_port);
 
     /// Stop all connections.
     void stop_all();
+
+    void set_callback(const std::function<event_callback_t>& func);
+
+
+    // this func should be multithread safe if running UdpPacketHandler in work thread pool.  can implement by io_service.dispatch
+    void call_event_callback_func(kcp_conv_t conv, eEventType event_type, std::shared_ptr<std::string> msg);
+
+    // this func should be multithread safe if running UdpPacketHandler in work thread pool.  can implement by io_service.dispatch
+    void send_udp_packet(const std::string& msg, const udp::endpoint& endpoint);
 
 private:
 
     /// The UDP
     void handle_udp_receive_from(const boost::system::error_code& error, size_t bytes_recvd);
     void hook_udp_async_receive(void);
-    static uint64_t endpoint_to_i(const udp::endpoint& ep);
     void handle_kcp_time(void);
     void hook_kcp_timer(void);
 
@@ -35,6 +46,8 @@ private:
 
 private:
     bool stopped_;
+
+    std::function<event_callback_t> event_callback_;
 
     /// The listen socket.
     udp::socket udp_socket_;

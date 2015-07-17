@@ -4,40 +4,36 @@
 #include <cstdlib>
 
 #include "../essential/utility/strutil.h"
+#include "connection_manager.hpp"
+
 
 namespace kcp_svr {
 
-server::server(const std::string& address, const std::string& port)
-  : io_service_(),
-    signals_(io_service_),
-    connection_manager_(io_service_, address, std::atoi(port.c_str()))
+server::server(boost::asio::io_service& io_service, const std::string& address, const std::string& port)
+  : io_service_(io_service),
+    connection_manager_ptr_(new connection_manager(io_service_, address, std::atoi(port.c_str())))
 {
-  // Register to handle the signals that indicate when the server should exit.
-  // It is safe to register for the same signal multiple times in a program,
-  // provided all registration for the specified signal is made through Asio.
-  signals_.add(SIGINT);
-  signals_.add(SIGTERM);
-#if defined(SIGQUIT)
-  signals_.add(SIGQUIT);
-#endif // defined(SIGQUIT)
-  signals_.async_wait(boost::bind(&server::handle_stop, this));
 }
 
-void server::run()
+void server::stop()
 {
-  // The io_service::run() call will block until all asynchronous operations
-  // have finished. While the server is running, there is always at least one
-  // asynchronous operation outstanding: the asynchronous accept call waiting
-  // for new incoming connections.
-  io_service_.run();
+    // The server is stopped by cancelling all outstanding asynchronous
+    // operations. Once all operations have finished the io_service::run() call
+    // will exit.
+    connection_manager_ptr_->stop_all();
+
+
+    // todo: when running UdpPacketHandler in work thread pool
+    // change to this:
+    //     connection_manager_.stop_recv();
+    //     connection_manager_.stop_packet_handler_workthread();
+    //     connection_manager_.close();
 }
 
-void server::handle_stop()
+void server::set_callback(const std::function<event_callback_t>& func)
 {
-  // The server is stopped by cancelling all outstanding asynchronous
-  // operations. Once all operations have finished the io_service::run() call
-  // will exit.
-  connection_manager_.stop_all();
+    connection_manager_ptr_->set_callback(func);
 }
+
 
 } // namespace kcp_svr

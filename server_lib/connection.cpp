@@ -9,14 +9,14 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include "asio_kcp_log.hpp"
-
+#include "connection_manager.hpp"
 
 namespace kcp_svr {
 
 //using namespace boost::asio::ip;
 
-connection::connection(udp::socket& udp_socket) :
-    udp_socket_(udp_socket),
+connection::connection(const std::weak_ptr<connection_manager>& manager_ptr) :
+    connection_manager_weak_ptr_(manager_ptr),
     conv_(0),
     p_kcp_(NULL)
 {
@@ -29,9 +29,10 @@ connection::~connection(void)
     conv_ = 0;
 }
 
-connection::shared_ptr connection::create(udp::socket& udp_socket, const kcp_conv_t& conv, const udp::endpoint& udp_sender_endpoint)
+connection::shared_ptr connection::create(const std::weak_ptr<connection_manager>& manager_ptr,
+        const kcp_conv_t& conv, const udp::endpoint& udp_sender_endpoint)
 {
-    shared_ptr ptr = std::make_shared<connection>(udp_socket);
+    shared_ptr ptr = std::make_shared<connection>(manager_ptr);
     if (ptr)
     {
         ptr->init_kcp(conv);
@@ -70,14 +71,17 @@ int connection::udp_output(const char *buf, int len, ikcpcb *kcp, void *user)
 
 void connection::send_udp_package(const char *buf, int len)
 {
-    udp_socket_.send_to(boost::asio::buffer(buf, len), udp_sender_endpoint_);
+    if (auto ptr = connection_manager_weak_ptr_.lock())
+    {
+        ptr->send_udp_packet(std::string(buf, len), udp_sender_endpoint_);
 
-#if AK_ENABLE_UDP_PACKET_LOG
-    AK_UDP_PACKET_LOG << "udp_send:" << udp_sender_endpoint_.address().to_string() << ":" << udp_sender_endpoint_.port()
-        << " conv:" << conv_
-        << " size:" << len << "\n"
-        << Essential::ToHexDumpText(std::string(buf, len), 32);
-#endif
+    #if AK_ENABLE_UDP_PACKET_LOG
+        AK_UDP_PACKET_LOG << "udp_send:" << udp_sender_endpoint_.address().to_string() << ":" << udp_sender_endpoint_.port()
+            << " conv:" << conv_
+            << " size:" << len << "\n"
+            << Essential::ToHexDumpText(std::string(buf, len), 32);
+    #endif
+    }
 }
 
 void connection::send_kcp_msg(const std::string& msg)

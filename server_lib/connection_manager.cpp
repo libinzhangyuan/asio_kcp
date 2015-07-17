@@ -40,6 +40,14 @@ static inline uint32_t iclock()
 
 namespace kcp_svr {
 
+uint64_t endpoint_to_i(const udp::endpoint& ep)
+{
+    uint64_t addr_i = ep.address().to_v4().to_ulong();
+    uint32_t port = ep.port();
+    return (addr_i << 32) + port;
+}
+
+
 connection_manager::connection_manager(boost::asio::io_service& io_service, const std::string& address, int udp_port) :
     stopped_(false),
     udp_socket_(io_service, udp::endpoint(boost::asio::ip::address::from_string(address), udp_port)),
@@ -60,6 +68,16 @@ void connection_manager::stop_all()
   udp_socket_.close();
 }
 
+void connection_manager::set_callback(const std::function<event_callback_t>& func)
+{
+    event_callback_ = func;
+}
+
+void connection_manager::call_event_callback_func(kcp_conv_t conv, eEventType event_type, std::shared_ptr<std::string> msg)
+{
+    event_callback_(conv, event_type, msg);
+}
+
 void connection_manager::handle_connect_packet()
 {
     kcp_conv_t conv = connections_.get_new_conv();
@@ -76,7 +94,7 @@ void connection_manager::handle_kcp_packet(size_t bytes_recvd)
 
     connection::shared_ptr conn_ptr = connections_.find_by_conv(conv);
     if (!conn_ptr)
-        conn_ptr = connections_.add_new_connection(udp_socket_, conv, udp_sender_endpoint_);
+        conn_ptr = connections_.add_new_connection(shared_from_this(), conv, udp_sender_endpoint_);
 
     if (conn_ptr)
         conn_ptr->input(udp_data_, bytes_recvd, udp_sender_endpoint_);
@@ -131,14 +149,6 @@ void connection_manager::hook_udp_async_receive(void)
               boost::asio::placeholders::bytes_transferred));
 }
 
-
-uint64_t connection_manager::endpoint_to_i(const udp::endpoint& ep)
-{
-    uint64_t addr_i = ep.address().to_v4().to_ulong();
-    uint32_t port = ep.port();
-    return (addr_i << 32) + port;
-}
-
 void connection_manager::hook_kcp_timer(void)
 {
     if (stopped_)
@@ -154,5 +164,9 @@ void connection_manager::handle_kcp_time(void)
     connections_.update_all_kcp(iclock());
 }
 
+void connection_manager::send_udp_packet(const std::string& msg, const boost::asio::ip::udp::endpoint& endpoint)
+{
+    udp_socket_.send_to(boost::asio::buffer(msg), udp_sender_endpoint_);
+}
 
 } // namespace kcp_svr

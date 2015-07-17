@@ -3,10 +3,10 @@
 #include <stdlib.h>
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
-#include "../server_lib/server.hpp"
 #include "g2logworker.h"
 #include "g2log.h"
 #include "asio_kcp_log.hpp"
+#include "server.hpp"
 
 
 #include <muduo/base/Logging.h>
@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
 
 
     // Initialise the server.
-    kcp_svr::server s(argv[1], argv[2]);
+    server s(argv[1], argv[2]);
 
     // Run the server until stopped.
     s.run();
