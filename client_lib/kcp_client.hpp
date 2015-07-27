@@ -84,33 +84,6 @@ typedef void(client_event_callback_t)(kcp_conv_t /*conv*/, eEventType /*event_ty
  *   aftering the success of connection. You can call c.send_msg in your code
  *   client_.update() in 5milliseconds_timer_handle will call event_callback_func back (in same thread) when recved some msg or some error happenned (disconnect)
 */
-
-
-/*
- * in class header define a member client_;
- *  kcp_client client_;
- *
- * in An event handle:
- *  hook 5milliseconds_timer_handle in your event-driven framework
- *  client_.connect_async()
- *
- * in 5milliseconds_timer_handle
- *  client_.update()
- *  events = client_.grab_events
- *  events.for_each  handle event
- *
- * 
- *  waiting event_call_back_func be called. And tell you connect succeed or failed.
- *
- *  aftering the success of connection. You can call c.send_msg in your code
- */
-/*
- * using event_callback_func.
- * in 5milliseconds_timer_hook
- * c.update()
-   kcp_client will call event_callback_func in same thread when recved some msg or some error happenned (disconnect)
-*/
-
 class kcp_client
 {
 public:

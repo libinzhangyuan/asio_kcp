@@ -1,9 +1,50 @@
-### asio_kcp - a fast and reliable udp framework
+### asio_kcp - a fast and reliable udp framework. 
+####This framework will be the fastest protocal for pvp game.
+
 ####kcp - a A Fast and Reliable ARQ Protocol (Can use with UDP)
 #####website of kcp: https://github.com/skywind3000/kcp
 #####This project wrap kcp by boost asio. Making it easy to use.
-#####And it's a bench mark test for kcp also.
-#####You can see the bench mark test result at https://github.com/libinzhangyuan/reliable_udp_bench_mark
+
+
+### Feature
+* Using in realtime pvp game that need miniest network delay. For example, the multiplayer first person shooting game.
+* Reliable UDP protocal.
+* Minimize delay.  And the worst delay should be good. 3 or more times better than enet when worst network lag happen.
+* Has good performace in wifi and phone network(3G, 4G).
+* Extra using 20% ~ 50% network flow for speed improvement.
+
+#### Future Feature
+* Encode the communication for encryption and decreasing the net through.
+
+<br>
+###Bench mark
+```
+worst network lag happen:
+asio: 10:51.21
+291  295   269   268   231   195   249   230   225   204
+
+enet: 10:51.21
+1563   1520    1470    1482    1438    1454    1412    1637    1588    1540
+```
+
+#####You can see the bench mark test result at [here](https://github.com/libinzhangyuan/reliable_udp_bench_mark)
+#####Or you can see the bench mark detail log at bench_mark folder.
+
+
+
+
+### client_lib
+#### Feature:
+* Do not using boost. And do not using feature of c++11
+* It's implement by original thread and socket.
+* [client_lib_usage](./client_lib_usage.md)
+
+
+
+
+
+
+
 
 
 <br><br>
