@@ -9,10 +9,13 @@ export BOOST_INC_PATH
     rm server/server 2>/dev/null ;\
     rm server_lib/asio_kcp_server.a 2>/dev/null;\
     rm asio_kcp_utest/asio_kcp_utest 2>/dev/null;\
+    rm asio_kcp_client_utest/asio_kcp_client_utest 2>/dev/null;\
 `
 
 echo "" && echo "" && echo "[-------------------------------]" && echo "   essential" && echo "[-------------------------------]" && \
     cd ./essential/ && make && \
+echo "" && echo "" && echo "[-------------------------------]" && echo "   client_lib" && echo "[-------------------------------]" && \
+    cd ../client_lib/ && make && \
 echo "" && echo "" && echo "[-------------------------------]" && echo "   server_lib" && echo "[-------------------------------]" && \
     cd ../server_lib/ && make && \
 echo "" && echo "" && echo "[-------------------------------]" && echo "   server" && echo "[-------------------------------]" && \
@@ -21,6 +24,8 @@ echo "" && echo "" && echo "[-------------------------------]" && echo "   clien
     cd ../client_with_asio/ && make && \
 echo "" && echo "" && echo "[-------------------------------]" && echo "   asio_kcp_utest" && echo "[-------------------------------]" && \
     cd ../asio_kcp_utest/ && make && \
+echo "" && echo "" && echo "[-------------------------------]" && echo "   kcp_client_utest" && echo "[-------------------------------]" && \
+    cd ../asio_kcp_client_utest/ && make && \
 echo ""
 
 # restore old path.

@@ -34,6 +34,7 @@
 .svn
 ./**/.svn
 
+asio_kcp_client_utest/asio_kcp_client_utest
 asio_kcp_utest/asio_kcp_utest
 client_with_asio/client_with_asio
 third_party/gtest-1.7.0

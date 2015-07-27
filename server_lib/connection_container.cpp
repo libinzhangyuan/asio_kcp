@@ -52,9 +52,10 @@ connection::shared_ptr connection_container::add_new_connection(std::weak_ptr<co
 kcp_conv_t connection_container::get_new_conv(void) const
 {
     // todo using rand to get a conv. privent the attack from guess conv.
+    // and must bigger than 1000
 
-    // increase from 1
-    static uint32_t static_cur_conv = 0;
+    // increase from 1001, must bigger than 1000
+    static uint32_t static_cur_conv = 1000;
     static_cur_conv++;
     return static_cur_conv;
 }

@@ -3,6 +3,7 @@
 #ifndef _KCP_CONNECT_PACKET_HPP_
 #define _KCP_CONNECT_PACKET_HPP_
 
+#include <stdint.h>
 #include <string>
 
 

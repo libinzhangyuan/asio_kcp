@@ -8,7 +8,7 @@
 -done 8. 包输出日志 自己实现一个异步输出的 or 用muduo ? -- 先用muduo
 9. 包输出引入packet_id_for_log
 10. 自动建立软链接到最新日志文件.
-
+11. client_lib connect函数引入参数 connect_timeout
 
 1. handle the re recving the connect packet.  e.g. resend by client because of lag.
 2. 添加用户身份验证, 防止恶意攻击.
