@@ -134,9 +134,12 @@ The third_party folder should like below,
 ### run bench mark test of kcp.
 * git checkout kcp_bench_mark_test
 * compile
-* the run.
+* then run server on your server:
     * ./asio_kcp_server/asio_kcp_server 0.0.0.0 12345 2>&1 | grep --line-buffered -v -e deadline_timer -e "ec=system:0$" -e "|$" >>bserver.txt
+* if you want to test the 3G/4G. you can share the wifi on your phone by using wiless AP. Making your client computer connect to this wifi.
+* run client on your client computer (Note: changing the ip and port to your server)
     * ./asio_kcp_client/asio_kcp_client 23445 120.26.200.117 12345 500 2>/dev/null
+       Note: changing the ip and port to your server which is running the asio_kcp_server
 
 
 <br>
@@ -169,6 +172,6 @@ The third_party folder should like below,
 ######http://www.tuicool.com/articles/reqiY3
 
 #### boost 1.58
-* look at the centos step in https://stackoverflow.com/questions/104322/how-do-you-install-boost-on-macos
+* https://stackoverflow.com/questions/104322/how-do-you-install-boost-on-macos
 
 
