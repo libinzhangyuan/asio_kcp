@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <sstream>
 #include <fcntl.h>
+#include <string.h>
 
 #include "../util/ikcp.h"
 #include "../util/connect_packet.hpp"

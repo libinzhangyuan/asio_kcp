@@ -1,6 +1,7 @@
 #include <cstring>
 #include <iostream>
 #include <cstdlib>
+#include <stdio.h>
 
 #include "connect_packet.hpp"
 

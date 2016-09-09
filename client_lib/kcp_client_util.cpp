@@ -3,6 +3,7 @@
 #include <iostream>
 #include <errno.h>
 #include <strings.h>
+#include <string.h>
 
 #include "kcp_client_util.h"
 
