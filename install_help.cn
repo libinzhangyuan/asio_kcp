@@ -7,6 +7,7 @@ centos 6.5
 1. 先安装 gcc 4.8  : http://blog.csdn.net/dyllove98/article/details/8917485
 
 2. 安装boost 1.58    http://www.boost.org/doc/libs/1_58_0/more/getting_started/unix-variants.html
+  yum -y install python-devel
   scp ~/work/code/boost_1_58_0.tar.bz2 star@g1:/data/
   ssh star@g1
   cd /data
@@ -20,8 +21,10 @@ centos 6.5
    strings /usr/lib64/libstdc++.so.6 | grep GLIBC   //  可以查看GLIBCXX_3.4.15不在里面
    sudo find / -name "libstdc++.so*" 2>/dev/null  // 查找到最新版本的libstdc++.so   /usr/local/lib64/libstdc++.so.6.0.18
    sudo rm /usr/lib64/libstdc++.so.6
-   sudo ln -s /usr/local/lib64/libstdc++.so.6.0.18 /usr/lib64/libstdc++.so.6
+   sudo cp /usr/local/lib64/libstdc++.so.6.0.18 /usr/lib64/
+   sudo ln -s /usr/lib64/libstdc++.so.6.0.18 /usr/lib64/libstdc++.so.6
    sudo vim /etc/ld.so.conf   // 将/usr/lib64目录新加一行，存入.
+   sudo rm /usr/local/lib64/libstdc++.so.6.0.18-gdb.py
    sudo ldconfig // all ok
 
 osx 10.10 部署:

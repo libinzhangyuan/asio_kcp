@@ -41,14 +41,17 @@ enet: 10:51.21
 
 
 
+<br><br>
+### You can use Dockerfile to create a [docker](www.docker.com) container for compiling or create compiling env your self.<br>
 
-
-
+<br><br>
+### Using compiling env in [docker](www.docker.com)<br>
+* This is simple if you familar with docker. Please read the text at [docker/docker_readme.md](./docker/docker_readme.md)
 
 
 
 <br><br>
-###Compile<br>
+### Create compiling env yourself<br>
 * I using gcc 4.8
 * Other version of gcc that support c++11 should be OK. You can compile asio_kcp as verifying.
 
@@ -84,7 +87,7 @@ enet: 10:51.21
             * comment -Werror
     * modify muduo/base/LogStream.h   kSmallBuffer = 4000  ->  kSmallBuffer = 4000*4
     * adding VERBOSE=1 to "make" in muduo/build.sh will show detail of compiling.
-    * $ CC=gcc CXX=g++ BUILD_DIR=./build BUILD_TYPE=release BUILD_NO_EXAMPLES=1 . build.sh
+    * $ CC=gcc CXX=g++ BUILD_DIR=./build BUILD_TYPE=release BUILD_NO_EXAMPLES=1 . ./build.sh
 
 * modify the BOOST_LIB_PATH and BOOST_INC_PATH in allmake.sh
 * do compiling at project root folder: $ . allmake.sh
@@ -145,6 +148,7 @@ The third_party folder should like below,
 <br>
 ###Centos 6.5 install help:
 #### boost  http://www.boost.org/doc/libs/1_58_0/more/getting_started/unix-variants.html
+* $ yum -y install python-devel
 * $ tar jxvf boost_1_58_0.tar.bz2
 * $ cd boost_1_58_0
 * $ ./bootstrap.sh
@@ -155,7 +159,8 @@ The third_party folder should like below,
 * strings /usr/lib64/libstdc++.so.6 | grep GLIBC   //  check the GLIBCXX_3.4.15. It is not in it.
 * sudo find / -name "libstdc++.so*" 2>/dev/null  // find the latest libstdc++.so   It should be /usr/local/lib64/libstdc++.so.6.0.18
 * sudo rm /usr/lib64/libstdc++.so.6
-* sudo ln -s /usr/local/lib64/libstdc++.so.6.0.18 /usr/lib64/libstdc++.so.6
+* sudo cp /usr/local/lib64/libstdc++.so.6.0.18 /usr/lib64/
+* sudo ln -s /usr/lib64/libstdc++.so.6.0.18 /usr/lib64/libstdc++.so.6
 * sudo vim /etc/ld.so.conf   // add a new line: /usr/lib64
 * sudo ldconfig // all ok
 
