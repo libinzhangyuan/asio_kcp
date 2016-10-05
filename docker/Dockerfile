@@ -76,3 +76,4 @@ RUN rm -Rf /home/install
 
 RUN mkdir /var/log/asio_kcp_log
 
+WORKDIR /home/work/asio_kcp

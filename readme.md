@@ -134,14 +134,33 @@ The third_party folder should like below,
     ./client_with_asio/client_with_asio 23425 127.0.0.1 12345 500 2>/dev/null
 
 
+
+
 ### run bench mark test of kcp.
 * git checkout kcp_bench_mark_test
 * compile
 * then run server on your server:
-    * ./asio_kcp_server/asio_kcp_server 0.0.0.0 12345 2>&1 | grep --line-buffered -v -e deadline_timer -e "ec=system:0$" -e "|$" >>bserver.txt
+    * ./server/server 0.0.0.0 12345 2>&1 | grep --line-buffered -v -e deadline_timer -e "ec=system:0$" -e "|$" >>bserver.txt
 * if you want to test the 3G/4G. you can share the wifi on your phone by using wiless AP. Making your client computer connect to this wifi.
 * run client on your client computer (Note: changing the ip and port to your server)
-    * ./asio_kcp_client/asio_kcp_client 23445 120.26.200.117 12345 500 2>/dev/null
+    * ./client_with_asio/client_with_asio 23445 120.26.200.117 12345 500 2>/dev/null
+       Note: changing the ip and port to your server which is running the asio_kcp_server
+
+
+### run bench mark test of kcp in docker container.
+* git checkout kcp_bench_mark_test
+* sudo docker run -it --name asio_kcp_server -p 12345:12345/udp -v /home/zhangyuan/work/asio_kcp:/home/work/asio_kcp asio_kcp:develop
+* compile
+* then run server on your server:
+    *  cd /home/work/asio_kcp
+    *  ./server/server 0.0.0.0 12345 2>&1 | grep --line-buffered -v -e deadline_timer -e "ec=system:0$" -e "|$" >>bserver.txt
+
+
+sudo docker run -it --name asio_kcp_client --net=container:asio_kcp_server -v /home/zhangyuan/work/asio_kcp:/home/work/asio_kcp asio_kcp:develop
+* if you want to test the 3G/4G. you can share the wifi on your phone by using wiless AP. Making your client computer connect to this wifi.
+* run client on your client computer (Note: changing the ip and port to your server)
+    *  cd /home/work/asio_kcp
+    * ./client_with_asio/client_with_asio 23445 127.0.0.1 12345 500 2>/dev/null
        Note: changing the ip and port to your server which is running the asio_kcp_server
 
 
