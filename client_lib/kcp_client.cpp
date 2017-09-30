@@ -165,10 +165,12 @@ void kcp_client::try_recv_connect_back_packet(void)
     if (ret_recv > 0 && asio_kcp::is_send_back_conv_packet(recv_buf, ret_recv))
     {
         // connect ok.
-        std::cerr << "connect succeed in " << iclock64() - connect_start_time_ << " milliseconds" << std::endl;
-        // save conv when recved connect back packet.
+
         kcp_conv_t conv = asio_kcp::grab_conv_from_send_back_conv_packet(recv_buf, ret_recv);
-        // init p_kcp_
+
+        std::cerr << "connect succeed in " << iclock64() - connect_start_time_ << " milliseconds"
+            << " conv:" << conv
+            << std::endl;
         init_kcp(conv);
         in_connect_stage_ = false;
         connect_succeed_ = true;

@@ -5,18 +5,16 @@
 #include <boost/lexical_cast.hpp>
 
 #include "../essential/utility/strutil.h"
-#include "kcp_client.hpp"
+#include "client_with_asio.hpp"
 
 
 using boost::asio::ip::tcp;
 
 enum { max_length = 1024 };
 
-void test_kcp(boost::asio::io_service &io_service, const int port_bind_to, const char* ip, const int port, size_t kcp_msg_size)
+void test_kcp(boost::asio::io_service &io_service, const int port_bind_to, const char* ip, const int port, size_t test_msg_size)
 {
-    server::kcp_client client(io_service, port_bind_to, std::string(ip), port, kcp_msg_size);
-
-    client.send_test_msg();
+    client_with_asio client(io_service, port_bind_to, std::string(ip), port, test_msg_size);
     io_service.run();
 }
 
@@ -28,7 +26,7 @@ int main(int argc, char* argv[])
     {
         if (argc != 5)
         {
-            std::cerr << "Usage: asio_kcp_client <port_bind_to> <connect_to_host> <connect_to_port> <msg_lenth>\n";
+            std::cerr << "Usage: asio_kcp_client <port_bind_to> <connect_to_host> <connect_to_port> <test_msg_lenth>\n";
             std::cerr << "asio_kcp_client 22222 232.23.223.1 12345 500\n";
             return 1;
         }
