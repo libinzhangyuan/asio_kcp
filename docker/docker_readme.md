@@ -41,32 +41,37 @@ changing the coding outside the container. And compiling or testing the code in 
 ```
 * command
 ```
-sudo docker run -it --name asio_kcp -v /home/zhangyuan/work/asio_kcp:/home/work/asio_kcp asio_kcp:develop
-cd /home/work/asio_kcp/third_party/g2log
-mkdir build ; cd build && cmake .. && make
-cd /home/work/asio_kcp/third_party/muduo
-CC=gcc CXX=g++ BUILD_DIR=./build BUILD_TYPE=release BUILD_NO_EXAMPLES=1 . ./build.sh
+# 1. prepare (out of the docker container)
+cd /home/zhangyuan/work/asio_kcp/third_party/
+unzip g2log.zip && unzip gmock-1.7.0.zip && unzip gtest-1.7.0.zip && unzip muduo.zip
+cp ../docker/LogStream.h ./muduo/muduo/base/LogStream.h
+cp ../docker/CMakeLists.txt ./muduo/CMakeLists.txt
+
+# 2. run or start the container
+sudo docker run -it --name asio_kcp -p 12345:12345/udp -v /home/zhangyuan/work/asio_kcp:/home/work/asio_kcp asio_kcp:develop
+sudo docker start -ia asio_kcp
+
+# 3. build in docker
+cd /home/work/asio_kcp/third_party && sh build.sh
 cd /home/work/asio_kcp
 sh quick_make.sh  # or  sh allmake.sh
 ```
 
 
 ###Run example test
-##### filter the verbose log from asio timer
+##### run server in container
     ./server/server 0.0.0.0 12345 2>&1 | grep --line-buffered -v -e deadline_timer -e "ec=system:0$" -e "|$" >>bserver.txt
-##### filter all asio log  (in anothor container)
-    sudo docker run -it --name asio_kcp_client --net=container:asio_kcp_server -v /home/zhangyuan/work/asio_kcp:/home/work/asio_kcp asio_kcp:develop
+##### run test client in anothor container
+    sudo docker run -it --name asio_kcp_client --net=container:asio_kcp -v /home/zhangyuan/work/asio_kcp:/home/work/asio_kcp asio_kcp:develop
+    sh quick_make.sh
     ./client_with_asio/client_with_asio 23425 127.0.0.1 12345 500 2>/dev/null
 
 
 
 
 
-
-
-
 # Run the benchmark test
-### run server
+### do at server
 ```
 git checkout kcp_bench_mark_test
 sudo docker run -it --name asio_kcp_server -p 12345:12345/udp -v /home/zhangyuan/work/asio_kcp:/home/work/asio_kcp asio_kcp:develop
@@ -75,13 +80,13 @@ then run server on your server:
     cd /home/work/asio_kcp
     ./server/server 0.0.0.0 12345 2>&1 | grep --line-buffered -v -e deadline_timer -e "ec=system:0$" -e "|$" >>bserver.txt
 ```
-### run client
+### do at client
 ```
 git checkout kcp_bench_mark_test
 sudo docker run -it --name asio_kcp_client --net=container:asio_kcp_server -v /home/zhangyuan/work/asio_kcp:/home/work/asio_kcp asio_kcp:develop
 if you want to test the 3G/4G. you can share the wifi on your phone by using wiless AP. Making your client computer connect to this wifi.
 run client on your client computer (Note: changing the ip and port to your server)
   cd /home/work/asio_kcp
-  ./client_with_asio/client_with_asio 23445 127.0.0.1 12345 500 2>/dev/null
+  ./client_with_asio/client_with_asio 23445 192.0.x.x 12345 500 2>/dev/null
        Note: changing the ip and port to your server which is running the asio_kcp_server
 ```
