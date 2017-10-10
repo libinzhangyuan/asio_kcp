@@ -8,6 +8,7 @@
 #include <sys/time.h>
 
 #include "../essential/utility/strutil.h"
+#include "../essential/check_function.h"
 #include "../util/ikcp.h"
 #include "../util/connect_packet.hpp"
 #include "asio_kcp_log.hpp"
@@ -51,7 +52,8 @@ uint64_t endpoint_to_i(const udp::endpoint& ep)
 connection_manager::connection_manager(boost::asio::io_service& io_service, const std::string& address, int udp_port) :
     stopped_(false),
     udp_socket_(io_service, udp::endpoint(boost::asio::ip::address::from_string(address), udp_port)),
-    kcp_timer_(io_service)
+    kcp_timer_(io_service),
+    cur_clock_(0)
 {
     //udp_socket_.set_option(udp::socket::non_blocking_io(false)); // why this make compile fail
 
@@ -73,6 +75,11 @@ void connection_manager::set_callback(const std::function<event_callback_t>& fun
     event_callback_ = func;
 }
 
+uint32_t connection_manager::get_timeout_time(void) const
+{
+    return ASIO_KCP_CONNECTION_TIMEOUT_TIME;
+}
+
 void connection_manager::call_event_callback_func(kcp_conv_t conv, eEventType event_type, std::shared_ptr<std::string> msg)
 {
     event_callback_(conv, event_type, msg);
@@ -83,6 +90,7 @@ void connection_manager::handle_connect_packet()
     kcp_conv_t conv = connections_.get_new_conv();
     std::string send_back_msg = asio_kcp::making_send_back_conv_packet(conv);
     udp_socket_.send_to(boost::asio::buffer(send_back_msg), udp_sender_endpoint_);
+    connections_.add_new_connection(shared_from_this(), conv, udp_sender_endpoint_);
 }
 
 void connection_manager::handle_kcp_packet(size_t bytes_recvd)
@@ -90,11 +98,17 @@ void connection_manager::handle_kcp_packet(size_t bytes_recvd)
     IUINT32 conv;
     int ret = ikcp_get_conv(udp_data_, bytes_recvd, &conv);
     if (ret == 0)
+    {
+        assert_check(false, "ikcp_get_conv return 0");
         return;
+    }
 
     connection::shared_ptr conn_ptr = connections_.find_by_conv(conv);
     if (!conn_ptr)
-        conn_ptr = connections_.add_new_connection(shared_from_this(), conv, udp_sender_endpoint_);
+    {
+        std::cout << "connection not exist with conv: " << conv << std::endl;
+        return;
+    }
 
     if (conn_ptr)
         conn_ptr->input(udp_data_, bytes_recvd, udp_sender_endpoint_);
@@ -161,7 +175,8 @@ void connection_manager::handle_kcp_time(void)
 {
     //std::cout << "."; std::cout.flush();
     hook_kcp_timer();
-    connections_.update_all_kcp(iclock());
+    cur_clock_ = iclock();
+    connections_.update_all_kcp(cur_clock_);
 }
 
 void connection_manager::send_udp_packet(const std::string& msg, const boost::asio::ip::udp::endpoint& endpoint)

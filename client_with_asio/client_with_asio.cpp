@@ -17,7 +17,7 @@
 
 #define PACKAGE_LOSE_RATIO 0
 #define PACKAGE_CONTENT_DAMAGE_RATIO 0
-#define SEND_TEST_MSG_INTERVAL 5000
+#define SEND_TEST_MSG_INTERVAL 1000
 
 /* get system time */
 static inline void itimeofday(long *sec, long *usec)
@@ -254,12 +254,14 @@ void client_with_asio::handle_client_event_callback(kcp_conv_t conv, eEventType 
             break;
         case eConnectFailed:
             std::cout << "connect failed with conv:" << conv << std::endl;
+            stopped_ = true;
             break;
         case eRcvMsg:
-            std::cout << "recv msg with conv:" << conv << std::endl;
+            std::cout << "recv eRcvMsg with conv:" << conv << "  msg_count: " << msg.size() << std::endl;
             break;
         case eDisconnect:
             std::cout << "disconnect with conv:" << conv << std::endl;
+            stopped_ = true;
             break;
         default:
             ; // do nothing

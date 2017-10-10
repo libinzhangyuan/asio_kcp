@@ -376,6 +376,17 @@ void kcp_client::do_send_msg_in_queue(void)
 
 void kcp_client::handle_udp_packet(const std::string& udp_packet)
 {
+    if (is_disconnect_packet(udp_packet.c_str(), udp_packet.size()))
+    {
+        if (pevent_func_ != NULL)
+        {
+            std::string msg(udp_packet);
+            (*pevent_func_)(p_kcp_->conv, eDisconnect, msg, event_callback_var_);
+        }
+        return;
+    }
+
+
     ikcp_input(p_kcp_, udp_packet.c_str(), udp_packet.size());
 
     while (true)

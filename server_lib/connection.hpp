@@ -33,6 +33,9 @@ public:
 
     void update_kcp(uint32_t clock);
 
+    bool is_timeout(void) const;
+    void do_timeout(void);
+
     // user level send msg.
     void send_kcp_msg(const std::string& msg);
 
@@ -41,15 +44,20 @@ public:
 
 private:
     void init_kcp(const kcp_conv_t& conv);
+    void clean(void);
     static int udp_output(const char *buf, int len, ikcpcb *kcp, void *user);
     void send_udp_package(const char *buf, int len);
     void send_back_udp_package_by_kcp(const std::string& package);
+
+    uint32_t get_cur_clock(void) const;
+    uint32_t get_timeout_time(void) const;
 
 private:
     std::weak_ptr<connection_manager> connection_manager_weak_ptr_; // -known
     kcp_conv_t conv_;
     ikcpcb* p_kcp_; // --own
     udp::endpoint udp_sender_endpoint_;
+    uint32_t last_packet_recv_time_;
 };
 
 } // namespace kcp_svr

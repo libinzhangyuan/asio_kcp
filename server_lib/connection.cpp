@@ -4,12 +4,14 @@
 
 #include "../essential/utility/strutil.h"
 #include "../util/ikcp.h"
+#include "../util/connect_packet.hpp"
 #include <cstdlib>
 #include <iostream>
 #include <unistd.h>
 #include <sys/time.h>
 #include "asio_kcp_log.hpp"
 #include "connection_manager.hpp"
+
 
 namespace kcp_svr {
 
@@ -18,12 +20,20 @@ namespace kcp_svr {
 connection::connection(const std::weak_ptr<connection_manager>& manager_ptr) :
     connection_manager_weak_ptr_(manager_ptr),
     conv_(0),
-    p_kcp_(NULL)
+    p_kcp_(NULL),
+    last_packet_recv_time_(0)
 {
 }
 
 connection::~connection(void)
 {
+    clean();
+}
+
+void connection::clean(void)
+{
+    std::string disconnect_msg = asio_kcp::making_disconnect_packet(conv_);
+    send_udp_package(disconnect_msg.c_str(), disconnect_msg.size());
     ikcp_release(p_kcp_);
     p_kcp_ = NULL;
     conv_ = 0;
@@ -100,6 +110,7 @@ void connection::send_back_udp_package_by_kcp(const std::string& package)
 
 void connection::input(char* udp_data, size_t bytes_recvd, const udp::endpoint& udp_sender_endpoint)
 {
+    last_packet_recv_time_ = get_cur_clock();
     udp_sender_endpoint_ = udp_sender_endpoint;
 
     ikcp_input(p_kcp_, udp_data, bytes_recvd);
@@ -132,7 +143,11 @@ void connection::input(char* udp_data, size_t bytes_recvd, const udp::endpoint& 
         else
         {
             const std::string package(kcp_buf, kcp_recvd_bytes);
-            std::cout << "\nkcp recv: " << kcp_recvd_bytes << std::endl << Essential::ToHexDumpText(package, 32) << std::endl;
+            std::cout << "\n" << last_packet_recv_time_
+                << " conv:" << conv_
+                << " lag_time:" << get_cur_clock() - last_packet_recv_time_
+                << " kcp recv: " << kcp_recvd_bytes << std::endl <<
+                Essential::ToHexDumpText(package, 32) << std::endl;
             send_back_udp_package_by_kcp(package);
         }
     }
@@ -141,6 +156,43 @@ void connection::input(char* udp_data, size_t bytes_recvd, const udp::endpoint& 
 void connection::update_kcp(uint32_t clock)
 {
     ikcp_update(p_kcp_, clock);
+}
+
+
+bool connection::is_timeout(void) const
+{
+    if (last_packet_recv_time_ == 0)
+        return false;
+
+    if (get_cur_clock() - last_packet_recv_time_ > get_timeout_time())
+    {
+        std::cout << "timeout: last_packet_recv_time_: " << last_packet_recv_time_ << std::endl;
+    }
+    return get_cur_clock() - last_packet_recv_time_ > get_timeout_time();
+}
+
+void connection::do_timeout(void)
+{
+    if (auto ptr = connection_manager_weak_ptr_.lock())
+    {
+        std::shared_ptr<std::string> msg(new std::string("timeout"));
+        ptr->call_event_callback_func(conv_, eEventType::eDisconnect, msg);
+    }
+}
+
+
+uint32_t connection::get_timeout_time(void) const
+{
+    return ASIO_KCP_CONNECTION_TIMEOUT_TIME;
+}
+
+uint32_t connection::get_cur_clock(void) const
+{
+    if (auto ptr = connection_manager_weak_ptr_.lock())
+    {
+        return ptr->get_cur_clock();
+    }
+    return 0;
 }
 
 } // namespace kcp_svr

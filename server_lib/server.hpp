@@ -17,9 +17,11 @@ class connection_manager;
 //   event_call(2342, eConnect, "user_id from client") will be called when a client connected kcp_svr successfully.
 //       And this client's conv is 2342. And the user_id is given as msg.
 //   event_call(2342, eRcvMsg, "text12345678") will be called when server recved a msg "text12345678" from client with conv 2342.
-//   event_call(2342, eLagNotify, "") will be called when none msg recved within some milliseconds.
-//       -- You can let other player in same game room show waiting UI if you want to add this logic in your handle function.
 //   event_call(2342, eDisconnect, "") will be called when server lose connect to client with conv 2342.
+//       -- default timeout time is 10 seconds. Please configure your timeout time by ASIO_KCP_CONNECTION_TIMEOUT_TIME in kcp_typedef.hpp.
+//   todo: event_call(2342, eLagNotify, "") will be called when none msg recved within some milliseconds.
+//       -- You can let other player in same game room show waiting UI if you want to add this logic in your handle function.
+//
 // Calling send_msg func if you want to send some msg.
 //
 // Usage detail:
@@ -40,10 +42,6 @@ public:
     // ~server(); // checking the stop() function called already.
 
     void set_callback(const std::function<event_callback_t>& func);
-
-    // eDisconnect return when none msg recved within mtime milliseconds.
-    //   or after you calling force_disconnect.
-    //  void set_diconnect_time(uint32_t mtime);
 
     // eLagNotify return when none msg recved within mtime milliseconds.
     // eLagNotify will be not returned if you do not set this or set this 0.

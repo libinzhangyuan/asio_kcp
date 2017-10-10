@@ -27,6 +27,8 @@ public:
     connection::shared_ptr add_new_connection(std::weak_ptr<connection_manager> manager_ptr,
             const kcp_conv_t& conv, const udp::endpoint& udp_sender_endpoint);
 
+    void remove_connection(const kcp_conv_t& conv);
+
     kcp_conv_t get_new_conv(void) const;
 private:
 

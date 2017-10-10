@@ -26,6 +26,8 @@ public:
 
     void set_callback(const std::function<event_callback_t>& func);
 
+    uint32_t get_timeout_time(void) const;
+
 
     // this func should be multithread safe if running UdpPacketHandler in work thread pool.  can implement by io_service.dispatch
     void call_event_callback_func(kcp_conv_t conv, eEventType event_type, std::shared_ptr<std::string> msg);
@@ -33,6 +35,7 @@ public:
     // this func should be multithread safe if running UdpPacketHandler in work thread pool.  can implement by io_service.dispatch
     void send_udp_packet(const std::string& msg, const udp::endpoint& endpoint);
 
+    uint32_t get_cur_clock(void) const {return cur_clock_;}
 private:
 
     /// The UDP
@@ -59,6 +62,8 @@ private:
     char udp_data_[1024 * 32];
 
     boost::asio::deadline_timer kcp_timer_;
+    uint32_t cur_clock_;
+    u_int32_t timeout_time_; // after x millisecond
 
     connection_container connections_;
 };

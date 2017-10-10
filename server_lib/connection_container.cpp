@@ -27,10 +27,21 @@ connection::shared_ptr connection_container::find_by_conv(const kcp_conv_t& conv
 
 void connection_container::update_all_kcp(uint32_t clock)
 {
-    for (auto& iter : connections_)
+    for (auto iter = connections_.begin(); iter != connections_.end();)
     {
-        connection::shared_ptr& ptr = iter.second;
+        connection::shared_ptr& ptr = iter->second;
+
         ptr->update_kcp(clock);
+
+        // check timeout
+        if (ptr->is_timeout())
+        {
+            ptr->do_timeout();
+            connections_.erase(iter++);
+            continue;
+        }
+
+        iter++;
     }
 }
 
@@ -47,6 +58,11 @@ connection::shared_ptr connection_container::add_new_connection(std::weak_ptr<co
     connection::shared_ptr ptr = connection::create(manager_ptr, conv, udp_sender_endpoint);
     connections_[conv] = ptr;
     return ptr;
+}
+
+void connection_container::remove_connection(const kcp_conv_t& conv)
+{
+    connections_.erase(conv);
 }
 
 kcp_conv_t connection_container::get_new_conv(void) const
