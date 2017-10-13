@@ -62,9 +62,9 @@ sh quick_make.sh  # or  sh allmake.sh
 ##### run server in container
     ./server/server 0.0.0.0 12345 2>&1 | grep --line-buffered -v -e deadline_timer -e "ec=system:0$" -e "|$" >>bserver.txt
 ##### run test client in anothor container
-    sudo docker run -it --name asio_kcp_client --net=container:asio_kcp -v /home/zhangyuan/work/asio_kcp:/home/work/asio_kcp asio_kcp:develop
+    sudo docker run -it --name asio_kcp_client -v /home/zhangyuan/work/asio_kcp:/home/work/asio_kcp asio_kcp:develop
     sh quick_make.sh
-    ./client_with_asio/client_with_asio 23425 127.0.0.1 12345 500 2>/dev/null
+    ./client_with_asio/client_with_asio 2342x 127.0.0.1 12345 500 2>/dev/null
 
 
 
@@ -73,8 +73,12 @@ sh quick_make.sh  # or  sh allmake.sh
 # Run the benchmark test
 ### do at server
 ```
-git checkout kcp_bench_mark_test
+docker build at master branch
+sudo docker build -t asio_kcp:develop .
 sudo docker run -it --name asio_kcp_server -p 12345:12345/udp -v /home/zhangyuan/work/asio_kcp:/home/work/asio_kcp asio_kcp:develop
+
+compile and run at kcp_bench_mark_test branch
+git checkout kcp_bench_mark_test
 compile
 then run server on your server:
     cd /home/work/asio_kcp
@@ -82,11 +86,15 @@ then run server on your server:
 ```
 ### do at client
 ```
+docker build at master branch
+sudo docker build -t asio_kcp:develop .
+sudo docker run -it --name asio_kcp_client -v /home/zhangyuan/work/asio_kcp:/home/work/asio_kcp asio_kcp:develop
+
+compile and run at kcp_bench_mark_test branch
 git checkout kcp_bench_mark_test
-sudo docker run -it --name asio_kcp_client --net=container:asio_kcp_server -v /home/zhangyuan/work/asio_kcp:/home/work/asio_kcp asio_kcp:develop
 if you want to test the 3G/4G. you can share the wifi on your phone by using wiless AP. Making your client computer connect to this wifi.
 run client on your client computer (Note: changing the ip and port to your server)
   cd /home/work/asio_kcp
-  ./client_with_asio/client_with_asio 23445 192.0.x.x 12345 500 2>/dev/null
+  ./client_with_asio/client_with_asio 2344x 192.0.x.x 12345 500 2>/dev/null
        Note: changing the ip and port to your server which is running the asio_kcp_server
 ```
