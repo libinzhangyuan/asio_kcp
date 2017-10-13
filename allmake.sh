@@ -4,12 +4,11 @@ BOOST_LIB_PATH=/usr/local/lib
 export BOOST_LIB_PATH
 BOOST_INC_PATH=/usr/local/include
 export BOOST_INC_PATH
-
-`rm client_with_asio/client_with_asio 2>/dev/null ;\
-    rm server/server 2>/dev/null ;\
-    rm server_lib/asio_kcp_server.a 2>/dev/null;\
-    rm asio_kcp_utest/asio_kcp_utest 2>/dev/null;\
-    rm asio_kcp_client_utest/asio_kcp_client_utest 2>/dev/null;\
+`rm -f client_with_asio/client_with_asio 2>/dev/null ;\
+    rm -f server/server 2>/dev/null ;\
+    rm -f server_lib/asio_kcp_server.a 2>/dev/null;\
+    rm -f asio_kcp_utest/asio_kcp_utest 2>/dev/null;\
+    rm -f asio_kcp_client_utest/asio_kcp_client_utest 2>/dev/null;\
 `
 
 echo "" && echo "" && echo "[-------------------------------]" && echo "   essential" && echo "[-------------------------------]" && \
