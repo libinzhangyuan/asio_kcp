@@ -50,7 +50,7 @@ public:
     //  int send_msg(const kcp_conv_t& conv, std::shared_ptr<std::string> msg);
     //  int send_msg(const std::vector< kcp_conv_t conv >& /*convs*/, std::shared_ptr<std::string> msg);
     //  int send_msg_to_all();
-    //  void force_disconnect(const kcp_conv_t& conv);
+    void force_disconnect(const kcp_conv_t& conv);
 
     // you must call stop before the destory of io_service or calling io_service.stop
     void stop();

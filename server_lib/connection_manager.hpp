@@ -24,6 +24,8 @@ public:
     /// Stop all connections.
     void stop_all();
 
+    void force_disconnect(const kcp_conv_t& conv);
+
     void set_callback(const std::function<event_callback_t>& func);
 
     uint32_t get_timeout_time(void) const;
@@ -55,7 +57,7 @@ private:
     /// The listen socket.
     udp::socket udp_socket_;
 
-    udp::endpoint udp_sender_endpoint_;
+    udp::endpoint udp_remote_endpoint_;
 
     //enum { udp_packet_max_length = 548 }; // maybe 1472 will be ok.
     enum { udp_packet_max_length = 1080 }; // (576-8-20 - 8) * 2

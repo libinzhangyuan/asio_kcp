@@ -260,8 +260,8 @@ void client_with_asio::handle_client_event_callback(kcp_conv_t conv, eEventType 
             std::cout << "recv eRcvMsg with conv:" << conv << "  msg_count: " << msg.size() << std::endl;
             break;
         case eDisconnect:
-            std::cout << "disconnect with conv:" << conv << std::endl;
-            stopped_ = true;
+            std::cout << "disconnect with conv:" << conv << " msg: " << msg << std::endl;
+            stopped_ = true; // you can add boost::asio::io_service::work to prevent program quit
             break;
         default:
             ; // do nothing

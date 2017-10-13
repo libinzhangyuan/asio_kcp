@@ -35,5 +35,9 @@ void server::set_callback(const std::function<event_callback_t>& func)
     connection_manager_ptr_->set_callback(func);
 }
 
+void server::force_disconnect(const kcp_conv_t& conv)
+{
+    connection_manager_ptr_->force_disconnect(conv);
+}
 
 } // namespace kcp_svr

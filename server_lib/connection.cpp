@@ -32,6 +32,7 @@ connection::~connection(void)
 
 void connection::clean(void)
 {
+    std::cout << "clean connection conv:" << conv_ << std::endl;
     std::string disconnect_msg = asio_kcp::making_disconnect_packet(conv_);
     send_udp_package(disconnect_msg.c_str(), disconnect_msg.size());
     ikcp_release(p_kcp_);
@@ -40,21 +41,21 @@ void connection::clean(void)
 }
 
 connection::shared_ptr connection::create(const std::weak_ptr<connection_manager>& manager_ptr,
-        const kcp_conv_t& conv, const udp::endpoint& udp_sender_endpoint)
+        const kcp_conv_t& conv, const udp::endpoint& udp_remote_endpoint)
 {
     shared_ptr ptr = std::make_shared<connection>(manager_ptr);
     if (ptr)
     {
         ptr->init_kcp(conv);
-        ptr->set_udp_sender_endpoint(udp_sender_endpoint);
-        AK_INFO_LOG << "new connection from: " << udp_sender_endpoint;
+        ptr->set_udp_remote_endpoint(udp_remote_endpoint);
+        AK_INFO_LOG << "new connection from: " << udp_remote_endpoint;
     }
     return ptr;
 }
 
-void connection::set_udp_sender_endpoint(const udp::endpoint& udp_sender_endpoint)
+void connection::set_udp_remote_endpoint(const udp::endpoint& udp_remote_endpoint)
 {
-    udp_sender_endpoint_ = udp_sender_endpoint;
+    udp_remote_endpoint_ = udp_remote_endpoint;
 }
 
 void connection::init_kcp(const kcp_conv_t& conv)
@@ -83,10 +84,10 @@ void connection::send_udp_package(const char *buf, int len)
 {
     if (auto ptr = connection_manager_weak_ptr_.lock())
     {
-        ptr->send_udp_packet(std::string(buf, len), udp_sender_endpoint_);
+        ptr->send_udp_packet(std::string(buf, len), udp_remote_endpoint_);
 
     #if AK_ENABLE_UDP_PACKET_LOG
-        AK_UDP_PACKET_LOG << "udp_send:" << udp_sender_endpoint_.address().to_string() << ":" << udp_sender_endpoint_.port()
+        std::cout << "udp_send:" << udp_remote_endpoint_.address().to_string() << ":" << udp_remote_endpoint_.port()
             << " conv:" << conv_
             << " size:" << len << "\n"
             << Essential::ToHexDumpText(std::string(buf, len), 32);
@@ -108,10 +109,10 @@ void connection::send_back_udp_package_by_kcp(const std::string& package)
     send_kcp_msg(package);
 }
 
-void connection::input(char* udp_data, size_t bytes_recvd, const udp::endpoint& udp_sender_endpoint)
+void connection::input(char* udp_data, size_t bytes_recvd, const udp::endpoint& udp_remote_endpoint)
 {
     last_packet_recv_time_ = get_cur_clock();
-    udp_sender_endpoint_ = udp_sender_endpoint;
+    udp_remote_endpoint_ = udp_remote_endpoint;
 
     ikcp_input(p_kcp_, udp_data, bytes_recvd);
 
@@ -164,10 +165,6 @@ bool connection::is_timeout(void) const
     if (last_packet_recv_time_ == 0)
         return false;
 
-    if (get_cur_clock() - last_packet_recv_time_ > get_timeout_time())
-    {
-        std::cout << "timeout: last_packet_recv_time_: " << last_packet_recv_time_ << std::endl;
-    }
     return get_cur_clock() - last_packet_recv_time_ > get_timeout_time();
 }
 

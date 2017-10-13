@@ -38,6 +38,7 @@ void kcp_client_wrap::client_event_callback_func(kcp_conv_t conv, eEventType eve
 
 void kcp_client_wrap::handle_client_event_callback(kcp_conv_t conv, eEventType event_type, const std::string& msg)
 {
+    std::cout << "kcp_client_wrap::handle_client_event_callback event_type: " << event_type << std::endl;
     switch (event_type)
     {
         case eConnect:

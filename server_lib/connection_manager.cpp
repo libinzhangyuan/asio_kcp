@@ -70,6 +70,17 @@ void connection_manager::stop_all()
   udp_socket_.close();
 }
 
+void connection_manager::force_disconnect(const kcp_conv_t& conv)
+{
+    std::cout << "force_disconnect: " << conv << std::endl;
+    if (!connections_.find_by_conv(conv))
+        return;
+
+    std::shared_ptr<std::string> msg(new std::string("server force disconnect"));
+    call_event_callback_func(conv, eEventType::eDisconnect, msg);
+    connections_.remove_connection(conv);
+}
+
 void connection_manager::set_callback(const std::function<event_callback_t>& func)
 {
     event_callback_ = func;
@@ -89,8 +100,8 @@ void connection_manager::handle_connect_packet()
 {
     kcp_conv_t conv = connections_.get_new_conv();
     std::string send_back_msg = asio_kcp::making_send_back_conv_packet(conv);
-    udp_socket_.send_to(boost::asio::buffer(send_back_msg), udp_sender_endpoint_);
-    connections_.add_new_connection(shared_from_this(), conv, udp_sender_endpoint_);
+    udp_socket_.send_to(boost::asio::buffer(send_back_msg), udp_remote_endpoint_);
+    connections_.add_new_connection(shared_from_this(), conv, udp_remote_endpoint_);
 }
 
 void connection_manager::handle_kcp_packet(size_t bytes_recvd)
@@ -111,7 +122,7 @@ void connection_manager::handle_kcp_packet(size_t bytes_recvd)
     }
 
     if (conn_ptr)
-        conn_ptr->input(udp_data_, bytes_recvd, udp_sender_endpoint_);
+        conn_ptr->input(udp_data_, bytes_recvd, udp_remote_endpoint_);
     else
         std::cout << "add_new_connection failed! can not connect!" << std::endl;
 }
@@ -121,15 +132,15 @@ void connection_manager::handle_udp_receive_from(const boost::system::error_code
     if (!error && bytes_recvd > 0)
     {
         /*
-        std::cout << "\nudp_sender_endpoint: " << udp_sender_endpoint_ << std::endl;
-        unsigned long addr_i = udp_sender_endpoint_.address().to_v4().to_ulong();
-        std::cout << addr_i << " " << udp_sender_endpoint_.port() << std::endl;
+        std::cout << "\nudp_sender_endpoint: " << udp_remote_endpoint_ << std::endl;
+        unsigned long addr_i = udp_remote_endpoint_.address().to_v4().to_ulong();
+        std::cout << addr_i << " " << udp_remote_endpoint_.port() << std::endl;
         std::cout << "udp recv: " << bytes_recvd << std::endl <<
             Essential::ToHexDumpText(std::string(udp_data_, bytes_recvd), 32) << std::endl;
         */
 
         #if AK_ENABLE_UDP_PACKET_LOG
-            AK_UDP_PACKET_LOG << "udp_recv:" << udp_sender_endpoint_.address().to_string() << ":" << udp_sender_endpoint_.port()
+            AK_UDP_PACKET_LOG << "udp_recv:" << udp_remote_endpoint_.address().to_string() << ":" << udp_remote_endpoint_.port()
                 << " conv:" << 0
                 << " size:" << bytes_recvd << "\n"
                 << Essential::ToHexDumpText(std::string(udp_data_, bytes_recvd), 32);
@@ -157,7 +168,7 @@ void connection_manager::hook_udp_async_receive(void)
     if (stopped_)
         return;
     udp_socket_.async_receive_from(
-          boost::asio::buffer(udp_data_, sizeof(udp_data_)), udp_sender_endpoint_,
+          boost::asio::buffer(udp_data_, sizeof(udp_data_)), udp_remote_endpoint_,
           boost::bind(&connection_manager::handle_udp_receive_from, this,
               boost::asio::placeholders::error,
               boost::asio::placeholders::bytes_transferred));
@@ -181,7 +192,7 @@ void connection_manager::handle_kcp_time(void)
 
 void connection_manager::send_udp_packet(const std::string& msg, const boost::asio::ip::udp::endpoint& endpoint)
 {
-    udp_socket_.send_to(boost::asio::buffer(msg), udp_sender_endpoint_);
+    udp_socket_.send_to(boost::asio::buffer(msg), endpoint);
 }
 
 } // namespace kcp_svr

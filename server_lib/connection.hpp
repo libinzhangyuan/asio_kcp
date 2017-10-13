@@ -24,12 +24,12 @@ public:
     ~connection(void);
 
     static connection::shared_ptr create(const std::weak_ptr<connection_manager>& manager_ptr,
-            const kcp_conv_t& conv, const udp::endpoint& udp_sender_endpoint);
+            const kcp_conv_t& conv, const udp::endpoint& udp_remote_endpoint);
 
-    void set_udp_sender_endpoint(const udp::endpoint& udp_sender_endpoint);
+    void set_udp_remote_endpoint(const udp::endpoint& udp_remote_endpoint);
 
-    // changing udp_sender_endpoint at every packet. Because we allow connection change ip or port. we using conv to indicate a connection.
-    void input(char* udp_data, size_t bytes_recvd, const udp::endpoint& udp_sender_endpoint);
+    // changing udp_remote_endpoint at every packet. Because we allow connection change ip or port. we using conv to indicate a connection.
+    void input(char* udp_data, size_t bytes_recvd, const udp::endpoint& udp_remote_endpoint);
 
     void update_kcp(uint32_t clock);
 
@@ -56,7 +56,7 @@ private:
     std::weak_ptr<connection_manager> connection_manager_weak_ptr_; // -known
     kcp_conv_t conv_;
     ikcpcb* p_kcp_; // --own
-    udp::endpoint udp_sender_endpoint_;
+    udp::endpoint udp_remote_endpoint_;
     uint32_t last_packet_recv_time_;
 };
 
