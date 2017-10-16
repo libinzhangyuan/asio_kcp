@@ -104,11 +104,6 @@ void connection::send_kcp_msg(const std::string& msg)
     }
 }
 
-void connection::send_back_udp_package_by_kcp(const std::string& package)
-{
-    send_kcp_msg(package);
-}
-
 void connection::input(char* udp_data, size_t bytes_recvd, const udp::endpoint& udp_remote_endpoint)
 {
     last_packet_recv_time_ = get_cur_clock();
@@ -128,7 +123,6 @@ void connection::input(char* udp_data, size_t bytes_recvd, const udp::endpoint& 
         }
         const std::string package(kcp_buf, kcp_recvd_bytes);
         std::cout << "\nkcp recv: " << kcp_recvd_bytes << std::endl << Essential::ToHexDumpText(package, 32) << std::endl;
-        send_back_udp_package_by_kcp(package);
 
         ikcp_input(p_kcp_, "", 0);
     }
@@ -149,7 +143,10 @@ void connection::input(char* udp_data, size_t bytes_recvd, const udp::endpoint& 
                 << " lag_time:" << get_cur_clock() - last_packet_recv_time_
                 << " kcp recv: " << kcp_recvd_bytes << std::endl <<
                 Essential::ToHexDumpText(package, 32) << std::endl;
-            send_back_udp_package_by_kcp(package);
+            if (auto ptr = connection_manager_weak_ptr_.lock())
+            {
+                ptr->call_event_callback_func(conv_, eRcvMsg, std::make_shared<std::string>(package));
+            }
         }
     }
 }

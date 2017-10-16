@@ -20,7 +20,7 @@ class server
         /// Handle a request to stop the server.
         void handle_stop();
 
-        static void event_callback(kcp_conv_t conv, kcp_svr::eEventType event_type, std::shared_ptr<std::string> msg);
+        void event_callback(kcp_conv_t conv, kcp_svr::eEventType event_type, std::shared_ptr<std::string> msg);
 
         void hook_test_timer(void);
         void handle_test_timer(void);

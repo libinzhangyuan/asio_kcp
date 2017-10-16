@@ -86,11 +86,6 @@ void connection_manager::set_callback(const std::function<event_callback_t>& fun
     event_callback_ = func;
 }
 
-uint32_t connection_manager::get_timeout_time(void) const
-{
-    return ASIO_KCP_CONNECTION_TIMEOUT_TIME;
-}
-
 void connection_manager::call_event_callback_func(kcp_conv_t conv, eEventType event_type, std::shared_ptr<std::string> msg)
 {
     event_callback_(conv, event_type, msg);
@@ -193,6 +188,16 @@ void connection_manager::handle_kcp_time(void)
 void connection_manager::send_udp_packet(const std::string& msg, const boost::asio::ip::udp::endpoint& endpoint)
 {
     udp_socket_.send_to(boost::asio::buffer(msg), endpoint);
+}
+
+int connection_manager::send_msg(const kcp_conv_t& conv, std::shared_ptr<std::string> msg)
+{
+    connection::shared_ptr connection_ptr = connections_.find_by_conv(conv);
+    if (!connection_ptr)
+        return -1;
+
+    connection_ptr->send_kcp_msg(*msg);
+    return 0;
 }
 
 } // namespace kcp_svr

@@ -47,7 +47,6 @@ private:
     void clean(void);
     static int udp_output(const char *buf, int len, ikcpcb *kcp, void *user);
     void send_udp_package(const char *buf, int len);
-    void send_back_udp_package_by_kcp(const std::string& package);
 
     uint32_t get_cur_clock(void) const;
     uint32_t get_timeout_time(void) const;

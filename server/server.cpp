@@ -24,7 +24,9 @@ server::server(const std::string& address, const std::string& port)
 #endif // defined(SIGQUIT)
     signals_.async_wait(boost::bind(&server::handle_stop, this));
 
-    kcp_server_.set_callback(&server::event_callback);
+    kcp_server_.set_callback(
+        std::bind(&server::event_callback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
+    );
     hook_test_timer();
 }
 
@@ -51,7 +53,8 @@ void server::event_callback(kcp_conv_t conv, kcp_svr::eEventType event_type, std
     std::cout << "event_callback:" << conv << " type:" << kcp_svr::eventTypeStr(event_type) << "msg: " << *msg << std::endl;
     if (event_type == kcp_svr::eRcvMsg)
     {
-        // kcp_server_.send_msg(conv, msg)
+        // auto send back msg for testing.
+        kcp_server_.send_msg(conv, msg);
     }
 }
 

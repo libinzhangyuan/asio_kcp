@@ -40,4 +40,10 @@ void server::force_disconnect(const kcp_conv_t& conv)
     connection_manager_ptr_->force_disconnect(conv);
 }
 
+
+int server::send_msg(const kcp_conv_t& conv, std::shared_ptr<std::string> msg)
+{
+    return connection_manager_ptr_->send_msg(conv, msg);
+}
+
 } // namespace kcp_svr
