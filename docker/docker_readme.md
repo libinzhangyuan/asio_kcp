@@ -3,6 +3,7 @@ How to build asio_kcp in docker container.
 # Start the docker.
 ## install docker
  https://www.docker.com/products/overview
+ ubuntu 14.04: https://www.atlantic.net/community/howto/install-docker-ubuntu-14-04-lts/
 
 ## prepare if you are in china. For GFW.
 ```
@@ -92,6 +93,10 @@ sudo docker run -it --name asio_kcp_client -v /home/zhangyuan/work/asio_kcp:/hom
 
 compile and run at kcp_bench_mark_test branch
 git checkout kcp_bench_mark_test
+compile
+
+
+
 if you want to test the 3G/4G. you can share the wifi on your phone by using wiless AP. Making your client computer connect to this wifi.
 run client on your client computer (Note: changing the ip and port to your server)
   cd /home/work/asio_kcp
