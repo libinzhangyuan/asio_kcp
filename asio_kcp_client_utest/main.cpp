@@ -19,7 +19,7 @@ std::string get_server_full_path_name(void)
     strcat(current_absolute_path, "/");
     printf("current absolute path:%s\n", current_absolute_path);
 
-    return std::string(current_absolute_path) + "server/server";
+    return std::string(current_absolute_path) + "asio_kcp/server/server";
 }
 
 int main(int argc, char* argv[])
@@ -31,8 +31,13 @@ int main(int argc, char* argv[])
     pid_t child_pid = 0;
     // fork a child process for create a server.
     pid_t pid = fork();
+    if (pid < 0)
+    {
+        std::cout << "fork return error :" << pid << std::endl;
+    }
     if (pid == 0) // child exec server
     {
+        std::cout << "exec server in fork progress server_full_name: " << server_full_name << std::endl;
         int fd = open("/dev/null", O_WRONLY);
         dup2(fd, 1);
         dup2(fd, 2);
@@ -52,7 +57,7 @@ int main(int argc, char* argv[])
     std::cerr << "RUN_ALL_TESTS return: " << ret << std::endl;
 
 
-    sleep(10);
+    sleep(2);
 
     // send signal to stop server.
     //

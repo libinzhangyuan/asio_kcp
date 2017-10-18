@@ -117,6 +117,11 @@ void kcp_client_wrap::do_workthread_loop(void)
         }
     }
 
+
+    workthread_start_ = false;
+    workthread_stopped_ = true;
+    std::cout << "workthread_loop thread end!" << std::endl;
+    pthread_exit(NULL);
     return;
 }
 
@@ -127,7 +132,8 @@ void kcp_client_wrap::stop()
         workthread_want_stop_ = true;
         while (workthread_stopped_ == false)
             millisecond_sleep(1);
-        workthread_start_ = false;
+        void *status;
+        pthread_join(workthread_, &status);
     }
     kcp_client_.stop();
 }

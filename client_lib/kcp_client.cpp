@@ -174,6 +174,7 @@ void kcp_client::try_recv_connect_back_packet(void)
         init_kcp(conv);
         in_connect_stage_ = false;
         connect_succeed_ = true;
+        (*pevent_func_)(p_kcp_->conv, eConnect, "connect succeed", event_callback_var_);
     }
 }
 /*

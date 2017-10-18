@@ -103,3 +103,13 @@ run client on your client computer (Note: changing the ip and port to your serve
   ./client_with_asio/client_with_asio 2344x 192.0.x.x 12345 500 2>/dev/null
        Note: changing the ip and port to your server which is running the asio_kcp_server
 ```
+
+
+###Run client unit test
+```
+sudo docker run -it --name asio_kcp -p 12345:12345/udp -v /home/zhangyuan/work/asio_kcp:/home/work/asio_kcp asio_kcp:develop
+    ./server/server 0.0.0.0 12345 2>&1 | grep --line-buffered -v -e deadline_timer -e "ec=system:0$" -e "|$" >>bserver.txt
+
+sudo docker run -it --name asio_kcp_client --net=container:asio_kcp -v /home/zhangyuan/work/asio_kcp:/home/work/asio_kcp asio_kcp:develop
+    ./asio_kcp_client_utest/asio_kcp_client_utest
+```

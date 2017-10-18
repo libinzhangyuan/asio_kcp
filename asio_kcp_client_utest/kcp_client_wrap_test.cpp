@@ -43,6 +43,7 @@ public:
         last_conv_ = conv;
         last_event_type_ = event_type;
         last_msg_ = msg;
+        std::cout << "last_msg_: " << last_msg_ << std::endl;
         last_var_ = var;
     }
 
@@ -54,23 +55,25 @@ public:
 
 TEST(ClientKcpNetTest, SendRecv) {
     asio_kcp::kcp_client_wrap net;
+    {
     Client client;
     net.set_event_callback(Client::client_event_callback, (void*)(&client));
     int ret = net.connect(0, "127.0.0.1", 32323);
     EXPECT_EQ(ret, 0);
     net.start_workthread();
     EXPECT_FALSE(net.workthread_stopped_);
+    sleep(1);
     EXPECT_TRUE(net.workthread_start_);
     net.send_msg(std::string("1234567890"));
-    //millisecond_sleep(1000);
     sleep(2);
-    std::cerr << std::endl << "after millisecond_sleep" << std::endl;
     EXPECT_EQ(client.last_conv_, net.kcp_client_.p_kcp_->conv);
     EXPECT_EQ(client.last_event_type_, eRcvMsg);
     EXPECT_EQ(client.last_msg_, std::string("1234567890"));
     EXPECT_EQ(client.last_var_, (void*)(&client));
+    std::cout << " TEST(ClientKcpNetTest, SendRecv)  ending =======" << std::endl;
+    }
+    sleep(2);
 }
-
 
 
 
