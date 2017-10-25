@@ -68,21 +68,21 @@ public:
     // return < 0 (KCP_ERR_XXX) when some error happen.
     int connect(int udp_port_bind, const std::string& server_ip, const int server_port);
 
-    // Following 2 functions are for async connection
-    void set_connect_event_callback(const client_event_callback_t& event_callback_func, void* var) {pconnect_event_func_ = event_callback_func, connect_event_func_var_ = var;}
 
+
+    // Async connect
+    //
     // we use system giving local port from system if udp_port_bind == 0
-    // return KCP_ERR_XXX if some error happen.
+    // return 0 means all is ok.  return KCP_ERR_XXX if some error happen.
     // kcp_client_wrap will call event_callback_func when connect succeed or failed if you set_event_callback.
     //   or you need call c.connect_result() repeatly until it return < 1
-    // You should call start_workthread func, after call connect_async. Otherwise you'll do not recv any result of connect.
     int connect_async(int udp_port_bind, const std::string& server_ip, const int server_port);
 
-    // start a work thread that manage the udp packet and kcp.
-    // this func do not block your thread. It will return as soon as possible.
-    // this func is called once only.
-    // Do not call the function set_callback() and connect() after calling start_workthread
-    void start_workthread(void);
+    // 0: connect succeed,  1: need waiting connect end,   <0: connect fail, and it's error code.
+    int connect_result(void) const {return connect_result_;}
+
+    //
+    // end of Async connect
 
 
     // user level send msg.
@@ -91,6 +91,12 @@ public:
     void stop();
 
 private:
+
+    // Node: changed!  Would not need call this start_workthread() function.
+    // connect() and connect_async() function will call start_workthread for your.
+    void start_workthread(void);
+
+
     static void client_event_callback_func(kcp_conv_t conv, eEventType event_type, const std::string& msg, void* var);
     void handle_client_event_callback(kcp_conv_t conv, eEventType event_type, const std::string& msg);
 
@@ -102,8 +108,6 @@ private:
 private:
     kcp_client kcp_client_;
     int connect_result_; // 0: connect succeed,  1: need waiting connect end,   <0: connect fail, and it's error code.
-    client_event_callback_t* pconnect_event_func_;
-    void* connect_event_func_var_;
     client_event_callback_t* pevent_func_;
     void* event_func_var_;
 

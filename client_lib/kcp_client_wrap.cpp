@@ -2,13 +2,12 @@
 
 #include "kcp_client_wrap.hpp"
 #include "kcp_client_util.h"
+#include "../essential/check_function.h"
 
 namespace asio_kcp {
 
 kcp_client_wrap::kcp_client_wrap(void) :
     connect_result_(1),
-    pconnect_event_func_(NULL),
-    connect_event_func_var_(NULL),
     pevent_func_(NULL),
     event_func_var_(NULL),
     workthread_(0),
@@ -43,14 +42,14 @@ void kcp_client_wrap::handle_client_event_callback(kcp_conv_t conv, eEventType e
     {
         case eConnect:
             connect_result_ = 0;
-            if (pconnect_event_func_)
-                (*pconnect_event_func_)(conv, event_type, msg, event_func_var_);
+            if (pevent_func_)
+                (*pevent_func_)(conv, event_type, msg, event_func_var_);
             break;
         case eConnectFailed:
             // if msg == KCP_CONNECT_TIMEOUT_MSG
             connect_result_ = KCP_ERR_KCP_CONNECT_TIMEOUT;
-            if (pconnect_event_func_)
-                (*pconnect_event_func_)(conv, event_type, msg, event_func_var_);
+            if (pevent_func_)
+                (*pevent_func_)(conv, event_type, msg, event_func_var_);
             break;
         case eRcvMsg:
         case eDisconnect:
@@ -68,7 +67,13 @@ int kcp_client_wrap::connect(int udp_port_bind, const std::string& server_ip, co
     if (ret_connect_async < 0)
         return ret_connect_async;
 
-    return do_asio_kcp_connect_loop();
+    int ret = do_asio_kcp_connect_loop();
+    if (ret == 0) // connect succeed
+    {
+        start_workthread();
+    }
+    std::cout << "kcp_client_wrap::connect end!" << std::endl;
+    return ret;
 }
 
 int kcp_client_wrap::do_asio_kcp_connect_loop(void)
@@ -82,13 +87,36 @@ int kcp_client_wrap::do_asio_kcp_connect_loop(void)
     }
 }
 
+int kcp_client_wrap::connect_async(int udp_port_bind, const std::string& server_ip, const int server_port)
+{
+    int ret_connect_async = kcp_client_.connect_async(udp_port_bind, server_ip, server_port);
+    if (ret_connect_async < 0)
+        return ret_connect_async;
+
+    start_workthread();
+    return 0;
+}
+
 void kcp_client_wrap::start_workthread(void)
 {
+    if (workthread_start_)
+    {
+        std::cerr << "workthread already start!" << std::endl;
+        assert_check(false, "workthread already start!");
+        return;
+    }
+
     int ret = pthread_create(&workthread_, NULL, &kcp_client_wrap::workthread_loop, (void*)this);
     if (ret != 0)
     {
         std::cerr << "start_workthread pthread_create error: " << ret << std::endl;
         return;
+    }
+
+    // waiting thread start
+    {
+        while (!workthread_start_)
+            millisecond_sleep(1);
     }
 }
 
@@ -100,6 +128,7 @@ void* kcp_client_wrap::workthread_loop(void* _this)
 
 void kcp_client_wrap::do_workthread_loop(void)
 {
+    std::cout << "workthread_loop thread start!" << std::endl;
     workthread_start_ = true;
     kcp_last_update_clock_ = iclock64() - KCP_UPDATE_INTERVAL;
 

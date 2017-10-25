@@ -25,7 +25,7 @@ You can set event_callback_func or not.
   * in 5milliseconds_timer_handle
 ```
     client_.update()
-    client_.update() will call event_callback_func back (in same thread) when connect succeed or failed
+    client_.update will call event_callback_func back (in same thread) when connect succeed or failed
 ```
 
   * aftering the success of connection. You can call c.send_msg in your code
@@ -55,7 +55,7 @@ You can set event_callback_func or not.
   * client_.update() in 5milliseconds_timer_handle will call event_callback_func back (in same thread) when recved some msg or some error 
 
 
-## 2. Using asio_kcp_client in a event-driven framework.<br>
+## 2. Using asio_kcp_client without a event-driven framework.<br>
 please using kcp_client_wrap.<br>
 kcp_client_wrap is a facade of kcp_client.<br>
 This facade is easy to use. <br>
@@ -91,10 +91,10 @@ kcp_client_wrap will create a work thread that control the udp packet sending an
 * async connect with callback_func
 ```
  kcp_client_wrap c;
- c.set_connect_event_callback_func()
+ c.set_event_callback_func()
  c.connect_async
  ...
- kcp_client_wrap will call connect_event_callback_func in another thread.   note: you should making connect_event_callback_func 
+ kcp_client_wrap will call event_callback_func in another thread.   note: you should making event_callback_func multithread safe.
 ```
 
 * async event handle

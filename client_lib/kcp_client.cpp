@@ -32,6 +32,16 @@ kcp_client::kcp_client(void) :
 
 kcp_client::~kcp_client(void)
 {
+    clean();
+}
+
+void kcp_client::clean(void)
+{
+    if (p_kcp_)
+    {
+        ikcp_release(p_kcp_);
+        p_kcp_ = NULL;
+    }
 }
 
 void kcp_client::set_event_callback(const client_event_callback_t& event_callback_func, void* var)
@@ -160,7 +170,7 @@ void kcp_client::try_recv_connect_back_packet(void)
         int err = errno;
         if (err == EAGAIN)
             return;
-        std::cerr << "do_asio_kcp_connect recv error return with errno: " << err << " " << strerror(err) << std::endl;
+        std::cerr << "try_recv_connect_back_packet recv error return with errno: " << err << " " << strerror(err) << std::endl;
     }
     if (ret_recv > 0 && asio_kcp::is_send_back_conv_packet(recv_buf, ret_recv))
     {

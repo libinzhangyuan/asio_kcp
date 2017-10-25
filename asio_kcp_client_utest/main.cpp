@@ -52,6 +52,9 @@ int main(int argc, char* argv[])
     //
     child_pid = pid;
 
+    // waiting server start
+    sleep(2);
+
     testing::InitGoogleTest(&argc, argv);
     int ret = RUN_ALL_TESTS();
     std::cerr << "RUN_ALL_TESTS return: " << ret << std::endl;

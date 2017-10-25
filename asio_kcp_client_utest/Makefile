@@ -65,7 +65,7 @@ MY_CFLAGS =
 
 # The linker options.
 GTEST_LIBS = ../third_party/gtest-1.7.0/lib/.libs/libgtest.a ../third_party/gmock-1.7.0/lib/.libs/libgmock.a
-MY_LIBS   = ../client_lib/kcp_client_lib.a $(GTEST_LIBS)
+MY_LIBS   = ../client_lib/kcp_client_lib.a ../essential/essential.a $(GTEST_LIBS)
 
 
 

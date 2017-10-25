@@ -35,7 +35,8 @@ namespace asio_kcp {
 
 enum eEventType
 {
-    eConnect,
+    eNotSet = -1,
+    eConnect = 0,
     eConnectFailed,
     eDisconnect,
     eRcvMsg,
@@ -90,6 +91,7 @@ public:
     kcp_client(void);
     ~kcp_client(void);
 
+    // event_callback_func will be called in the thread which you call update()
     void set_event_callback(const client_event_callback_t& event_callback_func, void* var);
 
     // we use system giving local port from system if udp_port_bind == 0
@@ -111,6 +113,7 @@ private:
     kcp_client(const kcp_client&);
 
     void init_kcp(kcp_conv_t conv);
+    void clean(void);
 
 private:
     // return 0 if connect succeed.
@@ -138,8 +141,6 @@ private:
     uint64_t connect_start_time_;
     uint64_t last_send_connect_msg_time_;
     bool connect_succeed_;
-
-
 
     client_event_callback_t* pevent_func_;
     void* event_callback_var_;
