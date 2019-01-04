@@ -1,14 +1,14 @@
 ### asio_kcp - a fast and reliable udp framework. 
-#### This framework will be the fastest protocal for pvp game.
+#### This framework will be the fastest protocol for pvp game.
 
-#### kcp - a A Fast and Reliable ARQ Protocol (Can use with UDP)
+#### kcp - A Fast and Reliable ARQ Protocol (Can use with UDP)
 ##### website of kcp: https://github.com/skywind3000/kcp
 ##### This project wrap kcp by boost asio. Making it easy to use.
 
 
 ### Feature
 * Using in realtime pvp game that need miniest network delay. For example, the multiplayer first person shooting game.
-* Reliable UDP protocal.
+* Reliable UDP protocol.
 * Minimize delay.  And the worst delay should be good. 3 or more times better than enet when worst network lag happen.
 * Has good performace in wifi and phone network(3G, 4G).
 * Extra using 20% ~ 50% network flow for speed improvement.
